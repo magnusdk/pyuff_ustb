@@ -1,7 +1,7 @@
 from functools import cached_property
 
 from pyuff.objects.scan import Scan
-from pyuff.readers import LazyArray
+from pyuff.readers import LazyArray, LazyScalar
 
 
 class Linear3DScan(Scan):
@@ -15,4 +15,4 @@ class Linear3DScan(Scan):
 
     @cached_property
     def roll(self):
-        return LazyArray(self._reader["roll"])
+        return LazyScalar(self._reader["roll"])

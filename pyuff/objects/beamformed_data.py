@@ -1,7 +1,7 @@
 from functools import cached_property
 
 from pyuff.objects.base import PyuffObject
-from pyuff.readers import LazyArray
+from pyuff.readers import LazyArray, LazyScalar
 
 
 class BeamformedData(PyuffObject):
@@ -34,8 +34,8 @@ class BeamformedData(PyuffObject):
 
     @cached_property
     def sampling_frequency(self):
-        return LazyArray(self._reader["sampling_frequency"])
+        return LazyScalar(self._reader["sampling_frequency"])
 
     @cached_property
     def modulation_frequency(self):
-        return LazyArray(self._reader["modulation_frequency"])
+        return LazyScalar(self._reader["modulation_frequency"])

@@ -13,7 +13,7 @@ True
 from enum import Enum
 
 
-class window(Enum):
+class Window(Enum):
     none = 0
     boxcar = 1
     rectangular = 1

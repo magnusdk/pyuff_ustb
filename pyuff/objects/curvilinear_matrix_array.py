@@ -1,10 +1,10 @@
 from functools import cached_property
 
-from pyuff.objects.base import PyuffObject
-from pyuff.readers import LazyArray
+from pyuff.objects.matrix_array import MatrixArray
+from pyuff.readers import LazyScalar
 
 
-class CurvilinearMatrixArray(PyuffObject):
+class CurvilinearMatrixArray(MatrixArray):
     @cached_property
     def radius_x(self):
-        return LazyArray(self._reader["radius_x"])
+        return LazyScalar(self._reader["radius_x"])

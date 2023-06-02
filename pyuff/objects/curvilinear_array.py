@@ -1,27 +1,30 @@
 from functools import cached_property
 
-from pyuff.objects.base import PyuffObject
-from pyuff.readers import LazyArray
+from pyuff.objects.probe import Probe
+from pyuff.readers import LazyScalar
 
 
-class CurvilinearArray(PyuffObject):
+class CurvilinearArray(Probe):
     @cached_property
     def N(self):
-        return LazyArray(self._reader["N"])
+        "Number of elements"
+        return LazyScalar(self._reader["N"])
 
     @cached_property
     def pitch(self):
-        return LazyArray(self._reader["pitch"])
+        "Distance between the elements in the azimuth direction [m]"
+        return LazyScalar(self._reader["pitch"])
 
     @cached_property
     def radius(self):
-        return LazyArray(self._reader["radius"])
+        "Radius of the curvilinear array [m]"
+        return LazyScalar(self._reader["radius"])
 
     # Optional
     @cached_property
     def element_width(self):
-        return LazyArray(self._reader["element_width"])
+        return LazyScalar(self._reader["element_width"])
 
     @cached_property
     def element_height(self):
-        return LazyArray(self._reader["element_height"])
+        return LazyScalar(self._reader["element_height"])

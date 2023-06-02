@@ -24,9 +24,14 @@ overwritten by the reader's obj_path."
         reader = self.__class__(self.h5_filepath, self.h5_obj_path + tuple(path))
         return reader if reader.path_exists() else None
 
+    @property
+    def keys(self):
+        return list(self)  # See __iter__
+
     def __iter__(self):
         with self.h5_obj as obj:
-            yield from obj
+            if isinstance(obj, h5py.Group):
+                yield from obj.keys()
 
     def path_exists(self) -> bool:
         try:
@@ -42,3 +47,10 @@ overwritten by the reader's obj_path."
             for name in self.h5_obj_path:
                 obj = obj[name]
             yield obj
+
+    def __repr__(self):
+        return f"""Reader(
+    filepath={self.h5_filepath!r},
+    obj_path={self.h5_obj_path!r},
+    keys={self.keys!r},
+)"""

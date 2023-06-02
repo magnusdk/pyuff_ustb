@@ -19,8 +19,8 @@ from pyuff.objects import (
     Scan,
     SectorScan,
     Wave,
-    wavefront,
-    window,
+    Wavefront,
+    Window,
 )
 from pyuff.readers import Reader
 
@@ -43,8 +43,8 @@ def get_class_from_name(name: Union[str, bytes]) -> Union[Type[PyuffObject], Non
         "uff.scan": Scan,
         "uff.linear_scan": LinearScan,
         "uff.wave": Wave,
-        "uff.wavefront": wavefront,
-        "uff.window": window,
+        "uff.wavefront": Wavefront,
+        "uff.window": Window,
     }
     if isinstance(name, bytes):
         name = name.decode("utf-8")

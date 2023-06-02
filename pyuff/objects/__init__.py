@@ -14,8 +14,8 @@ from pyuff.objects.pulse import Pulse
 from pyuff.objects.scan import Scan
 from pyuff.objects.sector_scan import SectorScan
 from pyuff.objects.wave import Wave
-from pyuff.objects.wavefront import wavefront
-from pyuff.objects.window import window
+from pyuff.objects.wavefront import Wavefront
+from pyuff.objects.window import Window
 
 __all__ = [
     "Apodization",
@@ -34,6 +34,6 @@ __all__ = [
     "Scan",
     "SectorScan",
     "Wave",
-    "wavefront",
-    "window",
+    "Wavefront",
+    "Window",
 ]

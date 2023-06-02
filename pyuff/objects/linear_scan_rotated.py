@@ -1,7 +1,7 @@
 from functools import cached_property
 
 from pyuff.objects.scan import Scan
-from pyuff.readers import LazyArray
+from pyuff.readers import LazyArray, LazyScalar
 
 
 class LinearScanRotated(Scan):
@@ -15,7 +15,7 @@ class LinearScanRotated(Scan):
 
     @cached_property
     def rotation_angle(self):
-        return LazyArray(self._reader["rotation_angle"])
+        return LazyScalar(self._reader["rotation_angle"])
 
     @cached_property
     def center_of_rotation(self):

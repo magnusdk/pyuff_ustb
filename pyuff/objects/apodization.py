@@ -1,6 +1,7 @@
 from functools import cached_property
 
 import numpy as np
+
 from pyuff.objects.base import PyuffObject
 from pyuff.readers import LazyArray, util
 
@@ -9,14 +10,10 @@ class Apodization(PyuffObject):
     @cached_property
     def probe(self):
         if "probe" in self._reader:
-            from pyuff.objects.probe import Probe
-
-            return Probe(self._reader["probe"])
+            return util.read_probe(self._reader["probe"])
 
     @cached_property
     def focus(self):
-        from pyuff.uff import get_class_from_name
-
         with self._reader.h5_obj as h5_obj:
             if "focus" in h5_obj:
                 focus_reader = self._reader["focus"]
@@ -24,10 +21,7 @@ class Apodization(PyuffObject):
                 focus_reader = self._reader["scan"]
             else:
                 return None
-
-        with focus_reader.h5_obj as h5_obj:
-            cls = get_class_from_name(h5_obj.attrs["class"])
-            return cls(focus_reader)
+        return util.read_scan(focus_reader)
 
     @cached_property
     def sequence(self):
@@ -35,10 +29,10 @@ class Apodization(PyuffObject):
 
     @cached_property
     def window(self):
-        from pyuff.objects.window import window
+        from pyuff.objects.window import Window
 
         with self._reader.h5_obj as h5_obj:
-            return window(np.squeeze(h5_obj["window"][:]))
+            return Window(np.squeeze(h5_obj["window"][:]))
 
     @cached_property
     def f_number(self):
