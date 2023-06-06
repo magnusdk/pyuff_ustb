@@ -1,13 +1,17 @@
-from functools import cached_property
-
 import numpy as np
 
-from pyuff.objects.base import PyuffObject
-from pyuff.readers import LazyArray, LazyScalar, util
+from pyuff.objects.base import (
+    PyuffObject,
+    compulsory_property,
+    dependent_property,
+    optional_property,
+)
+from pyuff.readers import LazyScalar, util
 
 
 class Wave(PyuffObject):
-    @cached_property
+    # Compulsory properties
+    @compulsory_property
     def wavefront(self):
         from pyuff.objects.wavefront import Wavefront
 
@@ -16,19 +20,20 @@ class Wave(PyuffObject):
                 return Wavefront(np.squeeze(h5_obj["wavefront"][:]))
         return Wavefront.spherical
 
-    @cached_property
+    @compulsory_property
     def source(self):
         from pyuff.objects.point import Point
 
         return Point(self._reader["source"])
 
-    @cached_property
+    @compulsory_property
     def origin(self):
-        from pyuff.objects.point import Point
+        if "origin" in self._reader:
+            from pyuff.objects.point import Point
 
-        return Point(self._reader["origin"])
+            return Point(self._reader["origin"])
 
-    @cached_property
+    @compulsory_property
     def apodization(self):
         if "apodization" in self._reader:
             from pyuff.objects.apodization import Apodization
@@ -36,27 +41,43 @@ class Wave(PyuffObject):
             return Apodization(self._reader["apodization"])
 
     # Optional properties
-    @cached_property
+    @optional_property
     def probe(self):
         if "probe" in self._reader:
             return util.read_probe(self._reader["probe"])
 
-    @cached_property
+    @optional_property
     def event(self):
         "Index of the transmit/receive event this wave refers to"
         if "event" in self._reader:
             return LazyScalar(self._reader["event"])
 
-    @cached_property
+    @optional_property
     def delay(self):
         "Time interval between t0 and acquistion start [s]"
         if "delay" in self._reader:
             return LazyScalar(self._reader["delay"])
         return 0.0
 
-    @cached_property
+    @optional_property
     def sound_speed(self):
         "Reference speed of sound [m/s]"
         if "sound_speed" in self._reader:
             return LazyScalar(self._reader["sound_speed"])
         return 1540.0
+
+    # Dependent properties
+    @dependent_property
+    def N_elements(self):
+        "Number of elements"
+        # TODO
+
+    @dependent_property
+    def delay_values(self):
+        "Delay [s]"
+        # TODO
+
+    @dependent_property
+    def apodization_values(self):
+        "Apodization [unitless]"
+        # TODO

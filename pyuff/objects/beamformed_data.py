@@ -1,41 +1,44 @@
-from functools import cached_property
-
-from pyuff.objects.base import PyuffObject
+from pyuff.objects.base import PyuffObject, compulsory_property, optional_property
 from pyuff.readers import LazyArray, LazyScalar
 
 
 class BeamformedData(PyuffObject):
-    @cached_property
+    # Compulsory properties
+    @compulsory_property
     def scan(self):
         from pyuff.objects.scan import Scan
 
         return Scan(self._reader["scan"])
 
-    @cached_property
+    @compulsory_property
     def data(self):
         return LazyArray(self._reader["sound_speed"])
 
-    # Optional properties
-    @cached_property
+    @optional_property
     def phantom(self):
-        ...
+        ...  # TODO
 
-    @cached_property
+    # Optional properties
+    @optional_property
     def sequence(self):
-        ...
+        ...  # TODO
 
-    @cached_property
+    @optional_property
     def probe(self):
-        ...
+        ...  # TODO
 
-    @cached_property
+    @optional_property
     def pulse(self):
-        ...
+        ...  # TODO
 
-    @cached_property
+    @optional_property
     def sampling_frequency(self):
-        return LazyScalar(self._reader["sampling_frequency"])
+        ...  # TODO
 
-    @cached_property
+    @optional_property
     def modulation_frequency(self):
-        return LazyScalar(self._reader["modulation_frequency"])
+        ...  # TODO
+
+    @optional_property
+    def frame_rate(self):
+        ...  # TODO

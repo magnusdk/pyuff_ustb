@@ -1,41 +1,41 @@
-from functools import cached_property
-
 import numpy as np
 
 from pyuff.objects import PyuffObject
+from pyuff.objects.base import compulsory_property, dependent_property
 from pyuff.readers import LazyScalar
 
 
 class Point(PyuffObject):
-    @cached_property
+    # Compulsory properties
+    @compulsory_property
     def distance(self):
         "Distance from the point location to the origin of coordinates [m]"
         return LazyScalar(self._reader["distance"])
 
-    @cached_property
+    @compulsory_property
     def azimuth(self):
         "Angle from the point location to the plane YZ [rad]"
         return LazyScalar(self._reader["azimuth"])
 
-    @cached_property
+    @compulsory_property
     def elevation(self):
         "Angle from the point location to the plane XZ [rad]"
         return LazyScalar(self._reader["elevation"])
 
     # Dependent properties
-    @property
+    @dependent_property
     def xyz(self):
         "location of the point [m m m] if the point is not at infinity"
         return np.array([self.x, self.y, self.z])
 
-    @property
+    @dependent_property
     def x(self):
         return self.distance * np.sin(self.azimuth) * np.cos(self.elevation)
 
-    @property
+    @dependent_property
     def y(self):
         return self.distance * np.sin(self.elevation)
 
-    @property
+    @dependent_property
     def z(self):
         return self.distance * np.cos(self.azimuth) * np.cos(self.elevation)

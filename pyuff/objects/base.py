@@ -1,11 +1,23 @@
 from functools import cached_property
-from typing import Optional, Sequence
+from typing import Optional, Sequence, TypeVar
 
 from pyuff.readers.base import Reader
 from pyuff.readers.lazy_arrays import LazyArray, LazyScalar
-from typing import TypeVar
 
 TPyuffObject = TypeVar("TPyuffObject", bound="PyuffObject")
+
+
+class compulsory_property(cached_property):
+    "Properties needed in order to write an UFF file."
+
+
+class optional_property(cached_property):
+    "Optional properties that can be written to an UFF file."
+
+
+class dependent_property(property):
+    """Properties that are dependent on other properties and are not read from or
+    written to an UFF file."""
 
 
 class PyuffObject:

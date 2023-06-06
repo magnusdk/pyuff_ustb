@@ -1,18 +1,18 @@
-from functools import cached_property
-
 import numpy as np
 
-from pyuff.objects.base import PyuffObject
+from pyuff.objects.base import PyuffObject, compulsory_property
 from pyuff.readers import LazyArray, util
+
+# TODO: Redo me
 
 
 class Apodization(PyuffObject):
-    @cached_property
+    @compulsory_property
     def probe(self):
         if "probe" in self._reader:
             return util.read_probe(self._reader["probe"])
 
-    @cached_property
+    @compulsory_property
     def focus(self):
         with self._reader.h5_obj as h5_obj:
             if "focus" in h5_obj:
@@ -23,26 +23,27 @@ class Apodization(PyuffObject):
                 return None
         return util.read_scan(focus_reader)
 
-    @cached_property
+    @compulsory_property
     def sequence(self):
-        return util.read_sequence(self._reader["sequence"])
+        if "sequence" in self._reader:
+            return util.read_sequence(self._reader["sequence"])
 
-    @cached_property
+    @compulsory_property
     def window(self):
         from pyuff.objects.window import Window
 
         with self._reader.h5_obj as h5_obj:
             return Window(np.squeeze(h5_obj["window"][:]))
 
-    @cached_property
+    @compulsory_property
     def f_number(self):
         return LazyArray(self._reader["f_number"])
 
-    @cached_property
-    def M(self):
-        return LazyArray(self._reader["M"])
+    # @compulsory_property
+    # def M(self):
+    #    return LazyArray(self._reader["M"])
 
-    @cached_property
+    @compulsory_property
     def origin(self):
         from pyuff.objects.point import Point
 
@@ -52,6 +53,6 @@ class Apodization(PyuffObject):
             elif "origo" in h5_obj:
                 return Point(self._reader["origo"])
 
-    @cached_property
+    @compulsory_property
     def tilt(self):
         return LazyArray(self._reader["tilt"])
