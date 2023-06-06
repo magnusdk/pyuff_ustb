@@ -3,10 +3,7 @@ from typing import Optional
 from pyuff.readers.base import Reader
 
 
-def read_sequence(sequence_reader: Optional[Reader]):
-    if sequence_reader is None:
-        return None
-
+def read_sequence(sequence_reader: Reader):
     from pyuff.objects.wave import Wave
 
     with sequence_reader.h5_obj as obj:

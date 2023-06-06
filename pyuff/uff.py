@@ -2,6 +2,7 @@ import pprint
 from typing import Type, Union
 
 from h5py import File
+
 from pyuff.objects import (
     Apodization,
     BeamformedData,
@@ -73,6 +74,10 @@ class Uff:
     def fields(self):
         return dict(self)
 
+    def keys(self):
+        with File(self.filepath, "r") as file:
+            return list(file.keys())
+
     def __repr__(self) -> str:
         return f"""Uff(
     filepath='{self.filepath}',
@@ -80,7 +85,6 @@ class Uff:
 )"""
 
     def __iter__(self):
-        with File(self.filepath, "r") as file:
-            for k in file.keys():
-                yield k, self.read(k)
-            return
+        for k in self.keys():
+            yield k, self.read(k)
+        return

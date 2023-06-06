@@ -46,11 +46,11 @@ giving the arguments as keyword arguments instead."
 
         for k, v in kwargs.items():
             setattr(self, k, v)
-        self._reader = reader if reader is not None else Reader(None)
+        self._reader = reader
 
     def eager_load(self: TPyuffObject) -> TPyuffObject:
         kwargs = {}
-        for name in self._get_fields():
+        for name in self._get_fields(skip_dependent_properties=True):
             value = getattr(self, name)
             if isinstance(value, (LazyArray, LazyScalar)):
                 value = value[...]
@@ -59,14 +59,28 @@ giving the arguments as keyword arguments instead."
             kwargs[name] = value
         return self.__class__(**kwargs)
 
-    def _get_fields(self) -> Sequence[str]:
+    def _get_fields(self, skip_dependent_properties: bool = False) -> Sequence[str]:
         t = type(self)
         return [
             attr
             for attr in dir(t)
-            if isinstance(getattr(t, attr), (property, cached_property))
+            if isinstance(
+                getattr(t, attr),
+                (compulsory_property, optional_property)
+                if skip_dependent_properties
+                else (compulsory_property, optional_property, dependent_property),
+            )
         ]
 
     def __repr__(self) -> str:
-        field_strs = [f"{field}={getattr(self, field)}" for field in self._get_fields()]
+        field_strs = [
+            f"{field}={_present_field_value(getattr(self, field))}"
+            for field in self._get_fields()
+        ]
         return self.__class__.__name__ + "(" + ", ".join(field_strs) + ")"
+
+
+def _present_field_value(value):
+    if isinstance(value, np.ndarray):
+        return f"<Array shape={value.shape} dtype={value.dtype}>"
+    return repr(value)
