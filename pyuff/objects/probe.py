@@ -29,8 +29,7 @@ class Probe(PyuffObject):
         "Location of the probe respect to origin of coordinates"
         from pyuff.objects.point import Point
 
-        if "origin" in self._reader:
-            return Point(self._reader["origin"])
+        return Point(self._reader["origin"])
 
     # Dependent properties
     @dependent_property

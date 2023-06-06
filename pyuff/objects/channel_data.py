@@ -42,20 +42,17 @@ class ChannelData(PyuffObject):
     def pulse(self):
         from pyuff.objects.pulse import Pulse
 
-        reader = self._reader["pulse"]
-        return Pulse(reader) if reader else None
+        return Pulse(self._reader["pulse"])
 
     @optional_property
     def phantom(self):
         from pyuff.objects.phantom import Phantom
 
-        reader = self._reader["phantom"]
-        return Phantom(reader) if reader else None
+        return Phantom(self._reader["phantom"])
 
     @optional_property
     def prf(self):
-        reader = self._reader["PRF"]
-        return LazyScalar(reader) if reader else None
+        return LazyScalar(self._reader["PRF"])
 
     # Dependent properties
     @dependent_property

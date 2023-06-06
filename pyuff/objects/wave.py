@@ -15,9 +15,9 @@ class Wave(PyuffObject):
     def wavefront(self):
         from pyuff.objects.wavefront import Wavefront
 
-        with self._reader.h5_obj as h5_obj:
-            if "wavefront" in h5_obj:
-                return Wavefront(np.squeeze(h5_obj["wavefront"][:]))
+        if "wavefront" in self._reader:
+            with self._reader["wavefront"].h5_obj as h5_obj:
+                return Wavefront(np.squeeze(h5_obj[:]))
         return Wavefront.spherical
 
     @compulsory_property
@@ -28,29 +28,25 @@ class Wave(PyuffObject):
 
     @compulsory_property
     def origin(self):
-        if "origin" in self._reader:
-            from pyuff.objects.point import Point
+        from pyuff.objects.point import Point
 
-            return Point(self._reader["origin"])
+        return Point(self._reader["origin"])
 
     @compulsory_property
     def apodization(self):
-        if "apodization" in self._reader:
-            from pyuff.objects.apodization import Apodization
+        from pyuff.objects.apodization import Apodization
 
-            return Apodization(self._reader["apodization"])
+        return Apodization(self._reader["apodization"])
 
     # Optional properties
     @optional_property
     def probe(self):
-        if "probe" in self._reader:
-            return util.read_probe(self._reader["probe"])
+        return util.read_probe(self._reader["probe"])
 
     @optional_property
     def event(self):
         "Index of the transmit/receive event this wave refers to"
-        if "event" in self._reader:
-            return LazyScalar(self._reader["event"])
+        return LazyScalar(self._reader["event"])
 
     @optional_property
     def delay(self):

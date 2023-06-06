@@ -1,7 +1,9 @@
 from functools import cached_property
 from typing import Optional, Sequence, TypeVar
 
-from pyuff.readers.base import Reader
+import numpy as np
+
+from pyuff.readers.base import Reader, ReaderKeyError
 from pyuff.readers.lazy_arrays import LazyArray, LazyScalar
 
 TPyuffObject = TypeVar("TPyuffObject", bound="PyuffObject")
@@ -10,9 +12,21 @@ TPyuffObject = TypeVar("TPyuffObject", bound="PyuffObject")
 class compulsory_property(cached_property):
     "Properties needed in order to write an UFF file."
 
+    def __get__(self, instance, owner=None):
+        try:
+            return super().__get__(instance, owner)
+        except ReaderKeyError:
+            return None
+
 
 class optional_property(cached_property):
     "Optional properties that can be written to an UFF file."
+
+    def __get__(self, instance, owner=None):
+        try:
+            return super().__get__(instance, owner)
+        except ReaderKeyError:
+            return None
 
 
 class dependent_property(property):

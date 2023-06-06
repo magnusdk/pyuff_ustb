@@ -18,14 +18,12 @@ class SectorScan(Scan):
     @compulsory_property
     def origin(self):
         "Vector of UFF.POINT objects"
-        with self._reader.h5_obj as obj:
-            if "origin" in obj:
-                raise NotImplementedError()
-            if "apex" in obj:
-                from pyuff.objects.point import Point
+        if "origin" in self._reader:
+            raise NotImplementedError()
+        if "apex" in self._reader:
+            from pyuff.objects.point import Point
 
-                return Point(self._reader["apex"])
-            return None
+            return Point(self._reader["apex"])
 
     # Dependent properties
     @dependent_property
