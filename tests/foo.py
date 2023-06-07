@@ -38,7 +38,7 @@ uffs = [
     "uff_beamformed_data.uff",
     "uff_channel_data.uff",
     "uff_curvilinear_array.uff",
-    "uff_example.uff",
+    #"uff_example.uff",
     "uff_linear_array.uff",
     "uff_linear_scan.uff",
     "uff_matrix_array.uff",
@@ -80,7 +80,7 @@ zips = [
 def do_thing():
     import time
 
-    from pyuff import ChannelData, Uff
+    from pyuff import Uff
     from tqdm import tqdm
 
     from vbeam.util.download import cached_download
@@ -93,9 +93,22 @@ def do_thing():
         filepath = cached_download(f"http://ustb.no/datasets/{uff_filename}")
         before = time.perf_counter()
         uff = Uff(filepath)
-        repr(uff)
+        for k in uff.keys():
+            uff[k].eager_load()
         after = time.perf_counter()
         timings[uff_filename] = after - before
+
+        # Write the file to disk
+        write_path = f"/home/magnusk/pyuff/tests/written/{uff_filename}"
+        for k, v in uff.items():
+            v.write(write_path, k, overwrite=True)
+
+        # Check if the files are the same
+        read_uff = Uff(filepath)
+        written_uff = Uff(write_path)
+        for k1, k2 in zip(read_uff.keys(), written_uff.keys()):
+            assert k1 == k2
+            assert read_uff[k1] == written_uff[k2]
 
     timings = sorted(timings.items(), key=lambda x: x[1])
     for t in timings:

@@ -25,31 +25,39 @@ from pyuff.objects import (
 )
 from pyuff.readers import Reader
 
+# Used to get class from class name in attrs
+_name2class = {
+    "uff.apodization": Apodization,
+    "uff.beamformed_data": BeamformedData,
+    "uff.channel_data": ChannelData,
+    "uff.curvilinear_array": CurvilinearArray,
+    "uff.curvilinear_matrix_array": CurvilinearMatrixArray,
+    "uff.linear_array": LinearArray,
+    "uff.matrix_array": MatrixArray,
+    "uff.phantom": Phantom,
+    "uff.point": Point,
+    "uff.probe": Probe,
+    "uff.pulse": Pulse,
+    "uff.pyuff_object": PyuffObject,
+    "uff.sector_scan": SectorScan,
+    "uff.scan": Scan,
+    "uff.linear_scan": LinearScan,
+    "uff.wave": Wave,
+    "uff.wavefront": Wavefront,
+    "uff.window": Window,
+}
+# Used to get class name from class
+_class2name = {v: k for k, v in _name2class.items()}
+
 
 def get_class_from_name(name: Union[str, bytes]) -> Union[Type[PyuffObject], None]:
-    class_dict = {
-        "uff.apodization": Apodization,
-        "uff.beamformed_data": BeamformedData,
-        "uff.channel_data": ChannelData,
-        "uff.curvilinear_array": CurvilinearArray,
-        "uff.curvilinear_matrix_array": CurvilinearMatrixArray,
-        "uff.linear_array": LinearArray,
-        "uff.matrix_array": MatrixArray,
-        "uff.phantom": Phantom,
-        "uff.point": Point,
-        "uff.probe": Probe,
-        "uff.pulse": Pulse,
-        "uff.pyuff_object": PyuffObject,
-        "uff.sector_scan": SectorScan,
-        "uff.scan": Scan,
-        "uff.linear_scan": LinearScan,
-        "uff.wave": Wave,
-        "uff.wavefront": Wavefront,
-        "uff.window": Window,
-    }
     if isinstance(name, bytes):
         name = name.decode("utf-8")
-    return class_dict.get(name, None)
+    return _name2class.get(name, None)
+
+
+def get_name_from_class(cls: Type[PyuffObject]) -> str:
+    return _class2name[cls]
 
 
 class Uff:
@@ -72,11 +80,17 @@ class Uff:
 
     @property
     def fields(self):
-        return dict(self)
+        return dict(self.items())
 
     def keys(self):
         with File(self.filepath, "r") as file:
             return list(file.keys())
+
+    def values(self):
+        return [self.read(k) for k in self.keys()]
+
+    def items(self):
+        return zip(self.keys(), self.values())
 
     def __repr__(self) -> str:
         return f"""Uff(
@@ -85,6 +99,4 @@ class Uff:
 )"""
 
     def __iter__(self):
-        for k in self.keys():
-            yield k, self.read(k)
-        return
+        return self.keys()

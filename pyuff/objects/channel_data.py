@@ -35,6 +35,7 @@ class ChannelData(PyuffObject):
 
     @compulsory_property
     def data(self):
+        # TODO: How to write transposed data? General system for this? Still clean and readable code
         return LazyArray(self._reader["data"]).T
 
     # Optional properties
