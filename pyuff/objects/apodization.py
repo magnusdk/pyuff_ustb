@@ -21,7 +21,9 @@ class Apodization(PyuffObject):
 
     @compulsory_property
     def sequence(self):
-        return util.read_sequence(self._reader["sequence"])
+        from pyuff.objects.wave import Wave
+
+        return util.read_potentially_list(self._reader["sequence"], Wave)
 
     @compulsory_property
     def window(self):

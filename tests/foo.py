@@ -7,12 +7,12 @@ uffs = [
     "experimental_dynamic_range_phantom.uff",
     "experimental_STAI_dynamic_range.uff",
     "FieldII_CPWC_point_scatterers_res_v2.uff",
-    # "FieldII_P4_point_scatterers.uff",
-    # "FieldII_speckle_DMASsimulation300000pts.uff",
+    ## "FieldII_P4_point_scatterers.uff",
+    ## "FieldII_speckle_DMASsimulation300000pts.uff",
     "FieldII_speckle_simulation.uff",
-    # "FieldII_STAI_dynamic_range.uff",
+    ## "FieldII_STAI_dynamic_range.uff",
     "FieldII_STAI_simulated_dynamic_range.uff",
-    # "FieldII_STAI_uniform_fov.uff",
+    ## "FieldII_STAI_uniform_fov.uff",
     "FI_P4_cysts_center.uff",
     "FI_P4_point_scatterers.uff",
     "L7_CPWC_193328.uff",
@@ -38,7 +38,7 @@ uffs = [
     "uff_beamformed_data.uff",
     "uff_channel_data.uff",
     "uff_curvilinear_array.uff",
-    #"uff_example.uff",
+    ## "uff_example.uff",
     "uff_linear_array.uff",
     "uff_linear_scan.uff",
     "uff_matrix_array.uff",
@@ -47,7 +47,7 @@ uffs = [
     "uff_scan.uff",
     "uff_sector_scan.uff",
     "uff_wave.uff",
-    # "Verasonics_P2-4_apical_four_chamber.uff",
+    ## "Verasonics_P2-4_apical_four_chamber.uff",
     "Verasonics_P2-4_parasternal_long_small.uff",
     "Verasonics_P2_4_parasternal_long.uff",
 ]
@@ -80,10 +80,11 @@ zips = [
 def do_thing():
     import time
 
-    from pyuff import Uff
     from tqdm import tqdm
-
     from vbeam.util.download import cached_download
+    import h5py
+
+    import pyuff
 
     timings = {}
 
@@ -92,20 +93,21 @@ def do_thing():
         pbar.set_description(uff_filename)
         filepath = cached_download(f"http://ustb.no/datasets/{uff_filename}")
         before = time.perf_counter()
-        uff = Uff(filepath)
+        uff = pyuff.Uff(filepath)
         for k in uff.keys():
-            uff[k].eager_load()
+            pyuff.eager_load(uff[k])
         after = time.perf_counter()
         timings[uff_filename] = after - before
 
         # Write the file to disk
         write_path = f"/home/magnusk/pyuff/tests/written/{uff_filename}"
-        for k, v in uff.items():
-            v.write(write_path, k, overwrite=True)
+        with h5py.File(write_path, "a") as file:
+            for k, v in uff.items():
+                pyuff.write_object(file, v, k, overwrite=True)
 
         # Check if the files are the same
-        read_uff = Uff(filepath)
-        written_uff = Uff(write_path)
+        read_uff = pyuff.Uff(filepath)
+        written_uff = pyuff.Uff(write_path)
         for k1, k2 in zip(read_uff.keys(), written_uff.keys()):
             assert k1 == k2
             assert read_uff[k1] == written_uff[k2]

@@ -27,7 +27,9 @@ class ChannelData(PyuffObject):
 
     @compulsory_property
     def sequence(self):
-        return util.read_sequence(self._reader["sequence"])
+        from pyuff.objects.wave import Wave
+
+        return util.read_potentially_list(self._reader["sequence"], Wave)
 
     @compulsory_property
     def probe(self):
@@ -53,7 +55,8 @@ class ChannelData(PyuffObject):
 
     @optional_property
     def prf(self):
-        return LazyScalar(self._reader["PRF"])
+        prf_key = "PRF" if "PRF" in self._reader else "prf"
+        return LazyScalar(self._reader["prf_key"])
 
     # Dependent properties
     @dependent_property
@@ -104,3 +107,8 @@ class ChannelData(PyuffObject):
             and self.pulse.center_frequency != 0
         ), "You need to set the pulse and the pulse center frequency."
         return self.sound_speed / self.pulse.center_frequency
+
+    def _preprocess_write(self, name: str, value):
+        if name == "data":
+            return value.T
+        return value

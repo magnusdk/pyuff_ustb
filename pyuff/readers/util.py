@@ -1,20 +1,25 @@
-from typing import Optional
+from typing import TYPE_CHECKING, List, Type, TypeVar, Union
 
 from pyuff.readers.base import Reader
 
+if TYPE_CHECKING:
+    # Import type hint stuff here to avoid circular imports. TYPE_CHECKING is always 
+    # False at runtime, but is True when type checking.
+    from pyuff.objects.base import TPyuffObject
 
-def read_sequence(sequence_reader: Reader):
-    from pyuff.objects.wave import Wave
 
-    with sequence_reader.h5_obj as obj:
+def read_potentially_list(
+    reader: Reader,
+    cls: Type["TPyuffObject"],
+) -> Union["TPyuffObject", List["TPyuffObject"]]:
+    """Read a PyuffObject or a list of PyuffObjects, depending on the "size"
+    attribute. If size>1, then we have a list of objects."""
+    with reader.h5_obj as obj:
         n = obj.attrs["size"][1]
         if n > 1:
-            waves = []
-            for k in obj:
-                waves.append(Wave(sequence_reader[k]))
-            return waves
+            return [cls(reader[k]) for k in obj]
         else:
-            return Wave(sequence_reader)
+            return cls(reader)
 
 
 def read_scan(scan_reader: Reader):

@@ -1,14 +1,12 @@
 from pyuff.objects.base import PyuffObject, compulsory_property, optional_property
-from pyuff.readers import LazyArray, LazyScalar
+from pyuff.readers import LazyArray, util
 
 
 class BeamformedData(PyuffObject):
     # Compulsory properties
     @compulsory_property
     def scan(self):
-        from pyuff.objects.scan import Scan
-
-        return Scan(self._reader["scan"])
+        return util.read_scan(self._reader["scan"])
 
     @compulsory_property
     def data(self):

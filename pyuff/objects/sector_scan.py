@@ -1,6 +1,6 @@
 from pyuff.objects.base import compulsory_property, dependent_property
 from pyuff.objects.scan import Scan
-from pyuff.readers import LazyArray
+from pyuff.readers import LazyArray, util
 
 
 class SectorScan(Scan):
@@ -18,11 +18,11 @@ class SectorScan(Scan):
     @compulsory_property
     def origin(self):
         "Vector of UFF.POINT objects"
-        if "origin" in self._reader:
-            raise NotImplementedError()
-        if "apex" in self._reader:
-            from pyuff.objects.point import Point
+        from pyuff.objects.point import Point
 
+        if "origin" in self._reader:
+            return util.read_potentially_list(self._reader["origin"], Point)
+        if "apex" in self._reader:
             return Point(self._reader["apex"])
 
     # Dependent properties

@@ -30,6 +30,8 @@ class LazyArray:
 
     def __getitem__(self, k) -> np.ndarray:
         with self._reader.h5_obj as obj:
+            # TODO: Accessing attrs may throw a KeyError which is caught by the Reader.
+            # It should not be caught by the Reader!
             is_complex = obj.attrs["complex"][0]
             if is_complex:
                 real = obj["real"]
@@ -111,6 +113,10 @@ class LazyArray:
 
     def __rtruediv__(self, other):
         return other / self[...]
+    
+    # Check for equality
+    def __eq__(self, other):
+        return np.array_equal(self[...], other)
 
 
 class LazyScalar(LazyArray):

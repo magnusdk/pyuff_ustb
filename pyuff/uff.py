@@ -23,7 +23,7 @@ from pyuff.objects import (
     Wavefront,
     Window,
 )
-from pyuff.readers import Reader
+from pyuff.readers import Reader, util
 
 # Used to get class from class name in attrs
 _name2class = {
@@ -73,7 +73,7 @@ class Uff:
                 raise NotImplementedError(
                     f"Class '{cls_name}' (at location '{name}') is not implemented."
                 )
-            return cls(Reader(self.filepath, name))
+            return util.read_potentially_list(Reader(self.filepath, name), cls)
 
     def __getitem__(self, key: str) -> PyuffObject:
         return self.read(key)
