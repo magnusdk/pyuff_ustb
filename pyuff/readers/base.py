@@ -31,7 +31,6 @@ overwritten by the reader's obj_path."
         with new_reader.h5_obj:  # <- raises ReaderKeyError if path does not exist
             return new_reader
 
-    @property
     def keys(self):
         return list(self)  # See __iter__
 
@@ -57,5 +56,5 @@ overwritten by the reader's obj_path."
         return f"""Reader(
     filepath={self.filepath!r},
     obj_path={self.obj_path!r},
-    keys={self.keys!r},
+    keys={self.keys()!r},
 )"""

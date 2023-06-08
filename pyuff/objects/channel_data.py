@@ -1,5 +1,5 @@
-from pyuff.objects.base import (
-    PyuffObject,
+from pyuff.objects.uff import (
+    Uff,
     compulsory_property,
     dependent_property,
     optional_property,
@@ -7,7 +7,7 @@ from pyuff.objects.base import (
 from pyuff.readers import LazyArray, LazyScalar, util
 
 
-class ChannelData(PyuffObject):
+class ChannelData(Uff):
     # Compulsory properties
     @compulsory_property
     def sampling_frequency(self):

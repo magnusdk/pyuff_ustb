@@ -1,11 +1,11 @@
 import numpy as np
 
-from pyuff.objects import PyuffObject
-from pyuff.objects.base import compulsory_property, dependent_property
+from pyuff.objects import Uff
+from pyuff.objects.uff import compulsory_property, dependent_property
 from pyuff.readers import LazyScalar
 
 
-class Point(PyuffObject):
+class Point(Uff):
     # Compulsory properties
     @compulsory_property
     def distance(self):

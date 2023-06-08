@@ -5,10 +5,14 @@ from typing import Any, List, Optional, Sequence, Tuple, TypeVar, Union
 import h5py
 import numpy as np
 
-from pyuff.readers.base import Reader, ReaderKeyError
+from pyuff.readers import Reader, ReaderKeyError, util
 from pyuff.readers.lazy_arrays import LazyArray, LazyScalar
 
-TPyuffObject = TypeVar("TPyuffObject", bound="PyuffObject")
+# A flag to enable equality checks with backwards compatibility for old files with 
+# different names for things.
+_BACKWORDS_COMPATIBLE_EQUALS = True
+
+TUff = TypeVar("TUff", bound="Uff")
 T = TypeVar("T")  # A generic type
 
 
@@ -37,19 +41,24 @@ class dependent_property(property):
     written to an UFF file."""
 
 
-class PyuffObject:
+class Uff:
     _reader: Reader
 
-    def __init__(self, _reader: Optional[Reader] = None, **kwargs):
+    def __init__(self, _reader: Optional[Union[Reader, str]] = None, **kwargs):
+        if isinstance(_reader, str):
+            _reader = Reader(_reader)
         if not isinstance(_reader, Reader) and _reader is not None:
             raise TypeError(
-                f"The first argument must be of type Reader (got {type(_reader)}). Try \
-giving the arguments as keyword arguments instead."
+                f"The first argument must be of type Reader or str (got \
+{type(_reader)}). Try giving the arguments as keyword arguments instead."
             )
 
         for k, v in kwargs.items():
             setattr(self, k, v)
         self._reader = _reader
+
+    def __getitem__(self, key: str) -> "Uff":
+        return self.read(key)
 
     @property
     def _attrs(self) -> dict:
@@ -61,13 +70,30 @@ giving the arguments as keyword arguments instead."
         else:
             return {}
 
+    def read(self, name: str) -> "Uff":
+        """Read an Uff object from the file. A Reader must be provided in order to read.
+        
+        >> uff = Uff("/path/to/some/file.uff")
+        >> scan = uff.read("scan")
+        """
+        from pyuff.common import get_class_from_name
+
+        with self._reader[name].h5_obj as obj:
+            cls_name = obj.attrs["class"]
+            cls = get_class_from_name(cls_name)
+            if cls is None:
+                raise NotImplementedError(
+                    f"Class '{cls_name}' (at location '{name}') is not implemented."
+                )
+            return util.read_potentially_list(Reader(self._reader[name]), cls)
+
     def write(
         self,
         filepath: str,
         location: Union[str, Tuple[str, ...], List[str]],
         overwrite: bool = False,
     ):
-        """Write the PyuffObject to a file.
+        """Write the Uff to a file.
 
         Parameters
         ----------
@@ -98,22 +124,27 @@ giving the arguments as keyword arguments instead."
         return value
 
     def _get_fields(self, skip_dependent_properties: bool = False) -> Sequence[str]:
-        t = type(self)
-        return [
-            attr
-            for attr in dir(t)
-            if isinstance(
-                getattr(t, attr),
-                (compulsory_property, optional_property)
-                if skip_dependent_properties
-                else (compulsory_property, optional_property, dependent_property),
-            )
-        ]
+        if type(self) is Uff:
+            return self._reader.keys()
+        else:
+            t = type(self)
+            return [
+                attr
+                for attr in dir(t)
+                if isinstance(
+                    getattr(t, attr),
+                    (compulsory_property, optional_property)
+                    if skip_dependent_properties
+                    else (compulsory_property, optional_property, dependent_property),
+                )
+            ]
+
+    def __iter__(self):
+        return iter(self._get_fields())
 
     def __repr__(self) -> str:
         field_strs = [
-            f"{field}={_present_field_value(getattr(self, field))}"
-            for field in self._get_fields(skip_dependent_properties=True)
+            f"{field}={_present_field_value(getattr(self, field))}" for field in self
         ]
         return self.__class__.__name__ + "(" + ", ".join(field_strs) + ")"
 
@@ -136,9 +167,6 @@ giving the arguments as keyword arguments instead."
         return True
 
 
-_BACKWORDS_COMPATIBLE_EQUALS = True
-
-
 def _attrs_equal(attrs1: dict, attrs2: dict) -> bool:
     if attrs1.keys() != attrs2.keys():
         return False
@@ -157,11 +185,6 @@ def _attrs_equal(attrs1: dict, attrs2: dict) -> bool:
             if v1 != v2:
                 if _BACKWORDS_COMPATIBLE_EQUALS:
                     if not {v1, v2} == {"scan", "focus"}:
-                        # TODO:
-                        # v1: '/channel_data'
-                        # v2: 'channel_data'
-                        # Not equal but should be
-
                         return False
                 else:
                     return False
@@ -171,7 +194,7 @@ def _attrs_equal(attrs1: dict, attrs2: dict) -> bool:
 def eager_load(obj: T) -> T:
     if isinstance(obj, (LazyArray, LazyScalar)):
         return np.array(obj)
-    elif isinstance(obj, PyuffObject):
+    elif isinstance(obj, Uff):
         kwargs = {}
         for name in obj._get_fields(skip_dependent_properties=True):
             kwargs[name] = eager_load(getattr(obj, name))
@@ -187,7 +210,7 @@ def eager_load(obj: T) -> T:
 def _present_field_value(value):
     if isinstance(value, np.ndarray):
         return f"<Array shape={value.shape} dtype={value.dtype}>"
-    elif isinstance(value, PyuffObject):
+    elif isinstance(value, Uff):
         return f"{value.__class__.__name__}(...)"
     elif isinstance(value, (list, tuple)):
         open_bracket = "[" if isinstance(value, list) else "("
@@ -218,7 +241,7 @@ def write_object(
     location: Union[str, Sequence[str]],
     overwrite: bool = False,
 ):
-    from pyuff.uff import get_name_from_class
+    from pyuff.common import get_name_from_class
 
     if isinstance(location, str):
         location = location.split("/")
@@ -234,7 +257,7 @@ def write_object(
 overwrite=True to overwrite it."
             )
 
-    if isinstance(obj, PyuffObject):
+    if isinstance(obj, Uff):
         name = obj._attrs.get("name", location[-1])
         group = hf.create_group(location_str)
         group.attrs["class"] = get_name_from_class(type(obj))
@@ -287,8 +310,8 @@ overwrite=True to overwrite it."
         group.attrs["size"] = np.array([1, len(obj)])
         for i, v in enumerate(obj):
             assert isinstance(
-                v, PyuffObject
-            ), "Assume list items are always PyuffObjects. Create a issue on \
+                v, Uff
+            ), "Assume list items are always Uffs. Create a issue on \
 the repository if you think this is not the case."
             write_object(hf, v, [*location, _item_name(name, i)], overwrite=overwrite)
 

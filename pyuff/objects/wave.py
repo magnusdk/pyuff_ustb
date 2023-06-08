@@ -1,7 +1,7 @@
 import numpy as np
 
-from pyuff.objects.base import (
-    PyuffObject,
+from pyuff.objects.uff import (
+    Uff,
     compulsory_property,
     dependent_property,
     optional_property,
@@ -9,7 +9,7 @@ from pyuff.objects.base import (
 from pyuff.readers import LazyScalar, util
 
 
-class Wave(PyuffObject):
+class Wave(Uff):
     # Compulsory properties
     @compulsory_property
     def wavefront(self):

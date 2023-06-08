@@ -1,9 +1,9 @@
-from pyuff.objects import PyuffObject
-from pyuff.objects.base import PyuffObject, compulsory_property
+from pyuff.objects import Uff
+from pyuff.objects.uff import Uff, compulsory_property
 from pyuff.readers import LazyArray, LazyScalar
 
 
-class Pulse(PyuffObject):
+class Pulse(Uff):
     # Compulsory properties
     @compulsory_property
     def center_frequency(self):

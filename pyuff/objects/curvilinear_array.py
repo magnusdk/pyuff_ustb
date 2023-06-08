@@ -1,4 +1,4 @@
-from pyuff.objects.base import (
+from pyuff.objects.uff import (
     compulsory_property,
     dependent_property,
     optional_property,

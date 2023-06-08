@@ -1,11 +1,11 @@
 import numpy as np
 
-from pyuff.objects import PyuffObject
-from pyuff.objects.base import PyuffObject, compulsory_property, dependent_property
+from pyuff.objects import Uff
+from pyuff.objects.uff import Uff, compulsory_property, dependent_property
 from pyuff.readers import LazyArray
 
 
-class Scan(PyuffObject):
+class Scan(Uff):
     # Compulsory properties
     @compulsory_property
     def x(self) -> LazyArray:

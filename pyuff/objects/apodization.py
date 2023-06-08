@@ -1,12 +1,12 @@
 import numpy as np
 
-from pyuff.objects.base import PyuffObject, compulsory_property
+from pyuff.objects.uff import Uff, compulsory_property
 from pyuff.readers import LazyArray, util
 
 # TODO: Redo me
 
 
-class Apodization(PyuffObject):
+class Apodization(Uff):
     @compulsory_property
     def probe(self):
         return util.read_probe(self._reader["probe"])

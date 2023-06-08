@@ -1,9 +1,9 @@
-from pyuff.objects import PyuffObject
-from pyuff.objects.base import compulsory_property, dependent_property
+from pyuff.objects import Uff
+from pyuff.objects.uff import compulsory_property, dependent_property
 from pyuff.readers import LazyArray, LazyScalar
 
 
-class Phantom(PyuffObject):
+class Phantom(Uff):
     # Compulsory properties
     @compulsory_property
     def points(self):

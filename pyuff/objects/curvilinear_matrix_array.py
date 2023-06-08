@@ -1,4 +1,4 @@
-from pyuff.objects.base import compulsory_property, optional_property
+from pyuff.objects.uff import compulsory_property, optional_property
 from pyuff.objects.matrix_array import MatrixArray
 from pyuff.readers import LazyScalar
 

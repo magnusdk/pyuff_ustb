@@ -1,8 +1,8 @@
-from pyuff.objects.base import PyuffObject, compulsory_property, optional_property
+from pyuff.objects.uff import Uff, compulsory_property, optional_property
 from pyuff.readers import LazyArray, util
 
 
-class BeamformedData(PyuffObject):
+class BeamformedData(Uff):
     # Compulsory properties
     @compulsory_property
     def scan(self):

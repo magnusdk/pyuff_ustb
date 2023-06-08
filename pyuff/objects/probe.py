@@ -1,10 +1,10 @@
 import numpy as np
 
-from pyuff.objects.base import PyuffObject, compulsory_property, dependent_property
+from pyuff.objects.uff import Uff, compulsory_property, dependent_property
 from pyuff.readers import LazyArray
 
 
-class Probe(PyuffObject):
+class Probe(Uff):
     # Compulsory properties
     @compulsory_property
     def geometry(self):

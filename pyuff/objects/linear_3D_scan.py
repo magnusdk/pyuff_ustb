@@ -1,4 +1,4 @@
-from pyuff.objects.base import compulsory_property, optional_property
+from pyuff.objects.uff import compulsory_property, optional_property
 from pyuff.objects.scan import Scan
 from pyuff.readers import LazyArray, LazyScalar
 

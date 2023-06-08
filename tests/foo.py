@@ -75,14 +75,29 @@ zips = [
     "ps.zip",
     "Verasonics_P2-4_parasternal_long.zip",
 ]
+import h5py
+import numpy as np
+
+
+def h5_equals(hf1, hf2):
+    assert dict(hf1.attrs) == dict(hf2.attrs)
+    if isinstance(hf1, h5py.Dataset):
+        assert np.array_equal(hf1[...], hf2[...])
+    elif isinstance(hf1, h5py.Group):
+        assert set(hf1.keys()) == set(hf2.keys())
+        for k in hf1.keys():
+            v1, v2 = hf1[k], hf2[k]
+            assert h5_equals(v1, v2)
+    else:
+        raise TypeError(f"Unknown type {type(hf1)}")
 
 
 def do_thing():
     import time
 
+    import h5py
     from tqdm import tqdm
     from vbeam.util.download import cached_download
-    import h5py
 
     import pyuff
 
@@ -94,7 +109,7 @@ def do_thing():
         filepath = cached_download(f"http://ustb.no/datasets/{uff_filename}")
         before = time.perf_counter()
         uff = pyuff.Uff(filepath)
-        for k in uff.keys():
+        for k in uff:
             pyuff.eager_load(uff[k])
         after = time.perf_counter()
         timings[uff_filename] = after - before
@@ -102,15 +117,18 @@ def do_thing():
         # Write the file to disk
         write_path = f"/home/magnusk/pyuff/tests/written/{uff_filename}"
         with h5py.File(write_path, "a") as file:
-            for k, v in uff.items():
+            for k in uff:
+                v = uff[k]
                 pyuff.write_object(file, v, k, overwrite=True)
 
         # Check if the files are the same
         read_uff = pyuff.Uff(filepath)
         written_uff = pyuff.Uff(write_path)
-        for k1, k2 in zip(read_uff.keys(), written_uff.keys()):
+        for k1, k2 in zip(read_uff, written_uff):
             assert k1 == k2
             assert read_uff[k1] == written_uff[k2]
+        #with h5py.File(filepath, "r") as hf1, h5py.File(write_path, "r") as hf2:
+        #    h5_equals(hf1, hf2)
 
     timings = sorted(timings.items(), key=lambda x: x[1])
     for t in timings:

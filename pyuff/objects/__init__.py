@@ -1,5 +1,5 @@
 from pyuff.objects.apodization import Apodization
-from pyuff.objects.base import PyuffObject, eager_load, write_object
+from pyuff.objects.uff import Uff, eager_load, write_object
 from pyuff.objects.beamformed_data import BeamformedData
 from pyuff.objects.channel_data import ChannelData
 from pyuff.objects.curvilinear_array import CurvilinearArray
@@ -19,7 +19,7 @@ from pyuff.objects.window import Window
 
 __all__ = [
     "Apodization",
-    "PyuffObject",
+    "Uff",
     "eager_load",
     "write_object",
     "BeamformedData",
