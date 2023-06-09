@@ -8,7 +8,7 @@ import numpy as np
 from pyuff.readers import Reader, ReaderKeyError, util
 from pyuff.readers.lazy_arrays import LazyArray, LazyScalar
 
-# A flag to enable equality checks with backwards compatibility for old files with 
+# A flag to enable equality checks with backwards compatibility for old files with
 # different names for things.
 _BACKWORDS_COMPATIBLE_EQUALS = True
 
@@ -57,6 +57,31 @@ class Uff:
             setattr(self, k, v)
         self._reader = _reader
 
+    @optional_property
+    def name(self):
+        "Name of the dataset"
+        return util.read_list_of_strings(self._reader["name"])
+
+    @optional_property
+    def reference(self):
+        "Reference to the publication where it was used/acquired"
+        return util.read_list_of_strings(self._reader["reference"])
+
+    @optional_property
+    def author(self):
+        "Contact of the authors"
+        return util.read_list_of_strings(self._reader["author"])
+
+    @optional_property
+    def version(self):
+        "Version of the dataset"
+        return util.read_list_of_strings(self._reader["version"])
+
+    @optional_property
+    def info(self):
+        "Other information"
+        return util.read_list_of_strings(self._reader["info"])
+
     def __getitem__(self, key: str) -> "Uff":
         return self.read(key)
 
@@ -72,7 +97,7 @@ class Uff:
 
     def read(self, name: str) -> "Uff":
         """Read an Uff object from the file. A Reader must be provided in order to read.
-        
+
         >> uff = Uff("/path/to/some/file.uff")
         >> scan = uff.read("scan")
         """
@@ -270,6 +295,12 @@ overwrite=True to overwrite it."
             value = obj._preprocess_write(name, value)
             write_object(hf, value, [*location, name], overwrite=overwrite)
 
+    elif isinstance(obj, str):
+        int_chars = np.array([ord(c) for c in obj], dtype=np.uint16)
+        dataset = hf.create_dataset(name, data=int_chars)
+        dataset.attrs["class"] = "char"
+        dataset.attrs["name"] = name
+
     elif isinstance(obj, (int, float, np.ndarray, LazyArray, LazyScalar)):
         name = location[-1]
         # We always write *.attrs["class"] = "single". I don't think it matters.
@@ -303,17 +334,33 @@ overwrite=True to overwrite it."
         assert all(
             type(o) == type(first_obj) for o in obj
         ), "All items in a list must have the same type."
-        group = hf.create_group(location_str)
-        group.attrs["class"] = get_name_from_class(type(first_obj))
-        group.attrs["name"] = name
-        group.attrs["array"] = np.array([1])  # True
-        group.attrs["size"] = np.array([1, len(obj)])
-        for i, v in enumerate(obj):
-            assert isinstance(
-                v, Uff
-            ), "Assume list items are always Uffs. Create a issue on \
-the repository if you think this is not the case."
-            write_object(hf, v, [*location, _item_name(name, i)], overwrite=overwrite)
+
+        # If it is a list of strings then it is a cell
+        if isinstance(first_obj, str):
+            group = hf.create_group(location_str)
+            group.attrs["class"] = "cell"
+            group.attrs["name"] = name
+            group.attrs["array"] = np.array([1])  # True
+            group.attrs["size"] = np.array([1, len(obj)])
+            for i, v in enumerate(obj):
+                write_object(
+                    hf, v, [*location, _item_name(name, i)], overwrite=overwrite
+                )
+        # Otherwise it is a list of Uff objects
+        else:
+            group = hf.create_group(location_str)
+            group.attrs["class"] = get_name_from_class(type(first_obj))
+            group.attrs["name"] = name
+            group.attrs["array"] = np.array([1])  # True
+            group.attrs["size"] = np.array([1, len(obj)])
+            for i, v in enumerate(obj):
+                assert isinstance(
+                    v, Uff
+                ), "Assume list items are always Uffs. Create a issue on \
+    the repository if you think this is not the case."
+                write_object(
+                    hf, v, [*location, _item_name(name, i)], overwrite=overwrite
+                )
 
     elif isinstance(obj, Enum):
         name = location[-1]
