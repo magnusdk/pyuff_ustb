@@ -285,6 +285,9 @@ overwrite=True to overwrite it."
     if isinstance(obj, Uff):
         name = obj._attrs.get("name", location[-1])
         group = hf.create_group(location_str)
+        for k in obj._attrs:
+            # Copy over attributes
+            group.attrs[k] = obj._attrs[k]
         group.attrs["class"] = get_name_from_class(type(obj))
         group.attrs["name"] = name
         group.attrs["array"] = np.array([0])  # False
@@ -296,15 +299,23 @@ overwrite=True to overwrite it."
             write_object(hf, value, [*location, name], overwrite=overwrite)
 
     elif isinstance(obj, str):
+        name = location[-1]
         int_chars = np.array([ord(c) for c in obj], dtype=np.uint16)
-        dataset = hf.create_dataset(name, data=int_chars)
+        # Strings are usually stored as (N,1) arrays in UFF files, let's do the same.
+        int_chars = np.expand_dims(int_chars, 1)
+        dataset = hf.create_dataset(location_str, data=int_chars)
         dataset.attrs["class"] = "char"
         dataset.attrs["name"] = name
 
     elif isinstance(obj, (int, float, np.ndarray, LazyArray, LazyScalar)):
         name = location[-1]
-        # We always write *.attrs["class"] = "single". I don't think it matters.
+        is_scalar = isinstance(obj, LazyScalar)
         obj = np.array(obj)  # <- Ensure array and load the data if lazy
+        if is_scalar:
+            # Scalar values are usually stored as (1,1) arrays in UFF files, let's do
+            # the same.
+            obj = np.expand_dims(obj, [0, 1])
+        # We always write *.attrs["class"] = "single". I don't think it matters.
         if np.iscomplexobj(obj):
             group = hf.create_group(location_str)
             group.attrs["class"] = "single"
@@ -365,7 +376,7 @@ overwrite=True to overwrite it."
     elif isinstance(obj, Enum):
         name = location[-1]
         dataset = hf.create_dataset(location_str, data=np.array([[obj.value]]))
-        dataset.attrs["class"] = "single"
+        dataset.attrs["class"] = get_name_from_class(type(obj))
         dataset.attrs["name"] = name
 
     elif obj is None:

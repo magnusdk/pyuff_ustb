@@ -37,7 +37,6 @@ class ChannelData(Uff):
 
     @compulsory_property
     def data(self):
-        # TODO: How to write transposed data? General system for this? Still clean and readable code
         return LazyArray(self._reader["data"]).T
 
     # Optional properties
@@ -54,28 +53,33 @@ class ChannelData(Uff):
         return Phantom(self._reader["phantom"])
 
     @optional_property
-    def prf(self):
+    def PRF(self):
         prf_key = "PRF" if "PRF" in self._reader else "prf"
-        return LazyScalar(self._reader["prf_key"])
+        return LazyScalar(self._reader[prf_key])
+
+    @optional_property
+    def N_active_elements(self):
+        "Number of active transducers on receive"
+        return LazyScalar(self._reader["N_active_elements"])
 
     # Dependent properties
     @dependent_property
-    def n_samples(self) -> int:
+    def N_samples(self) -> int:
         "Number of samples in the data"
         return self.data.shape[0]
 
     @dependent_property
-    def n_elements(self) -> int:
+    def N_elements(self) -> int:
         "Number of elements in the probe"
         return self.probe.n_elements
 
     @dependent_property
-    def n_channels(self) -> int:
+    def N_channels(self) -> int:
         "Number of elements in the probe"
         return self.probe.n_elements
 
     @dependent_property
-    def n_waves(self) -> int:
+    def N_waves(self) -> int:
         "Number of transmitted waves"
         from pyuff.objects.wave import Wave
 
@@ -86,7 +90,7 @@ class ChannelData(Uff):
         return 0
 
     @dependent_property
-    def n_frames(self) -> int:
+    def N_frames(self) -> int:
         "Number of frames"
         if self.data.ndim == 4:
             return self.data.shape[3]

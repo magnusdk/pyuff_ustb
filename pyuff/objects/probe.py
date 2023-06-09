@@ -33,7 +33,7 @@ class Probe(Uff):
 
     # Dependent properties
     @dependent_property
-    def n_elements(self):
+    def N_elements(self):
         "Number of elements"
         return self.geometry.shape[1]
 

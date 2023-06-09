@@ -33,6 +33,11 @@ overwritten by the reader's obj_path."
 
     def keys(self):
         return list(self)  # See __iter__
+    
+    @property
+    def attrs(self) -> dict:
+        with self.h5_obj as obj:
+            return dict(obj.attrs)
 
     def __iter__(self):
         with self.h5_obj as obj:
