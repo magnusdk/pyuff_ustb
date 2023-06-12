@@ -1,6 +1,6 @@
 import numpy as np
 
-from pyuff.objects.scan import Scan
+from pyuff.objects.scans.scan import Scan
 from pyuff.objects.uff import compulsory_property, dependent_property
 from pyuff.readers import LazyArray, util
 

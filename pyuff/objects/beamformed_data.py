@@ -37,7 +37,7 @@ class BeamformedData(Uff):
     @optional_property
     def probe(self):
         "PROBE object"
-        from pyuff.objects.probe import Probe
+        from pyuff.objects.probes.probe import Probe
 
         return Probe(self._reader["probe"])
 

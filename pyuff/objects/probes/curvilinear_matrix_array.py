@@ -1,6 +1,6 @@
 import numpy as np
 
-from pyuff.objects.matrix_array import MatrixArray
+from pyuff.objects.probes.matrix_array import MatrixArray
 from pyuff.objects.uff import compulsory_property, dependent_property
 from pyuff.readers import LazyScalar
 

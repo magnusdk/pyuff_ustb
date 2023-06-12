@@ -1,5 +1,5 @@
 from pyuff.objects.uff import compulsory_property, optional_property
-from pyuff.objects.probe import Probe
+from pyuff.objects.probes.probe import Probe
 from pyuff.readers import LazyScalar
 
 

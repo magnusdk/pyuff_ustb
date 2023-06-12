@@ -1,7 +1,6 @@
 import numpy as np
 
-from pyuff.objects import Uff
-from pyuff.objects.uff import compulsory_property, dependent_property
+from pyuff.objects.uff import Uff, compulsory_property, dependent_property
 from pyuff.readers import LazyArray, LazyScalar
 
 

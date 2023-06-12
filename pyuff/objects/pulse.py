@@ -1,4 +1,3 @@
-from pyuff.objects import Uff
 from pyuff.objects.uff import Uff, compulsory_property
 from pyuff.readers import LazyArray, LazyScalar
 

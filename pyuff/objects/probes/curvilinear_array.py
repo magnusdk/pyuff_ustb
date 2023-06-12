@@ -1,6 +1,6 @@
 import numpy as np
 
-from pyuff.objects.probe import Probe
+from pyuff.objects.probes.probe import Probe
 from pyuff.objects.uff import compulsory_property, dependent_property, optional_property
 from pyuff.readers import LazyScalar
 

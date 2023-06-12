@@ -1,21 +1,27 @@
 import numpy as np
 
-from pyuff.objects.scan import Scan
+from pyuff.objects.scans.scan import Scan
 from pyuff.objects.uff import compulsory_property, dependent_property
-from pyuff.readers import LazyArray
+from pyuff.readers import LazyArray, LazyScalar
 
 
-class LinearScan(Scan):
+class LinearScanRotated(Scan):
     # Compulsory properties
     @compulsory_property
     def x_axis(self):
-        "Vector containing the x coordinates of the x-axis [m]"
         return LazyArray(self._reader["x_axis"])
 
     @compulsory_property
     def z_axis(self):
-        "Vector containing the z coordinates of the z-axis [m]"
         return LazyArray(self._reader["z_axis"])
+
+    @compulsory_property
+    def rotation_angle(self):
+        return LazyScalar(self._reader["rotation_angle"])
+
+    @compulsory_property
+    def center_of_rotation(self):
+        return LazyArray(self._reader["center_of_rotation"])
 
     # Dependent properties
     @dependent_property

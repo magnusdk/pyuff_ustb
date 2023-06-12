@@ -44,7 +44,7 @@ def read_list_of_strings(reader: Reader) -> Union[None, List[str]]:
 
 def read_scan(scan_reader: Reader):
     from pyuff.common import get_class_from_name
-    from pyuff.objects.scan import Scan
+    from pyuff.objects.scans.scan import Scan
 
     with scan_reader.h5_obj as obj:
         cls = get_class_from_name(obj.attrs["class"])
@@ -54,7 +54,7 @@ def read_scan(scan_reader: Reader):
 
 def read_probe(probe_reader: Reader):
     from pyuff.common import get_class_from_name
-    from pyuff.objects.probe import Probe
+    from pyuff.objects.probes.probe import Probe
 
     with probe_reader.h5_obj as obj:
         cls = get_class_from_name(obj.attrs["class"])
