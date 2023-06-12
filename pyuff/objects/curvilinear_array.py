@@ -1,9 +1,7 @@
-from pyuff.objects.uff import (
-    compulsory_property,
-    dependent_property,
-    optional_property,
-)
+import numpy as np
+
 from pyuff.objects.probe import Probe
+from pyuff.objects.uff import compulsory_property, dependent_property, optional_property
 from pyuff.readers import LazyScalar
 
 
@@ -39,4 +37,4 @@ class CurvilinearArray(Probe):
     @dependent_property
     def maximum_angle(self):
         "Angle of the outermost elements in the array"
-        ...  # TODO
+        return np.max(np.abs(self.theta))

@@ -66,14 +66,18 @@ class Wave(Uff):
     @dependent_property
     def N_elements(self):
         "Number of elements"
-        # TODO
+        return self.probe.N_elements
 
     @dependent_property
     def delay_values(self):
         "Delay [s]"
-        # TODO
+        raise NotImplementedError(
+            "Delay value computation is outside the scope of pyuff"
+        )
 
     @dependent_property
     def apodization_values(self):
         "Apodization [unitless]"
-        # TODO
+        raise NotImplementedError(
+            "Apodization computation is outside the scope of pyuff"
+        )

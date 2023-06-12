@@ -1,5 +1,7 @@
-from pyuff.objects.uff import compulsory_property, optional_property
+import numpy as np
+
 from pyuff.objects.matrix_array import MatrixArray
+from pyuff.objects.uff import compulsory_property, dependent_property
 from pyuff.readers import LazyScalar
 
 
@@ -10,8 +12,8 @@ class CurvilinearMatrixArray(MatrixArray):
         "Radius of the curvilinear array in azimuth direction [m]"
         return LazyScalar(self._reader["radius_x"])
 
-    # Optional properties
-    @optional_property
+    # Dependent properties
+    @dependent_property
     def maximum_angle(self):
         "Angle of the outermost elements in the array"
-        # TODO
+        return np.max(np.abs(self.theta))

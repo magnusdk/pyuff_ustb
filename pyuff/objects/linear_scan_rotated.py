@@ -1,5 +1,7 @@
-from pyuff.objects.uff import compulsory_property, dependent_property
+import numpy as np
+
 from pyuff.objects.scan import Scan
+from pyuff.objects.uff import compulsory_property, dependent_property
 from pyuff.readers import LazyArray, LazyScalar
 
 
@@ -23,26 +25,26 @@ class LinearScanRotated(Scan):
 
     # Dependent properties
     @dependent_property
-    def n_x_axis(self):
+    def N_x_axis(self):
         "Number of pixels in the x_axis"
-        # TODO
+        return len(self.x_axis)
 
     @dependent_property
-    def n_z_axis(self):
+    def N_z_axis(self):
         "Number of pixels in the z_axis"
-        # TODO
+        return len(self.z_axis)
 
     @dependent_property
     def x_step(self):
         "The step size in m of the x samples"
-        # TODO
+        return np.mean(np.diff(self.x_axis))
 
     @dependent_property
     def z_step(self):
         "The step size in m of the z samples"
-        # TODO
+        return np.mean(np.diff(self.z_axis))
 
     @dependent_property
     def reference_distance(self):
         "Distance used for the calculation of the phase term"
-        # TODO
+        return self.z

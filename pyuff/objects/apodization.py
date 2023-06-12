@@ -35,8 +35,9 @@ class Apodization(Uff):
     @compulsory_property
     def f_number(self):
         "F-number [Fx Fy] [unitless unitless]"
-        # TODO: Default value = [1, 1]
-        return LazyArray(self._reader["f_number"])
+        if "f_number" in self._reader:
+            return LazyArray(self._reader["f_number"])
+        return np.array([1, 1])
 
     @compulsory_property
     def window(self):
@@ -51,32 +52,37 @@ class Apodization(Uff):
     @compulsory_property
     def MLA(self):
         "Number of multi-line acquisitions, only valid for uff.window.scanline"
-        # TODO: Default value = 1
-        return LazyArray(self._reader["MLA"])
+        if "MLA" in self._reader:
+            return LazyArray(self._reader["MLA"])
+        return np.array(1)
 
     @compulsory_property
     def MLA_overlap(self):
         "Number of multi-line acquisitions, only valid for uff.window.scanline"
-        # TODO: Default value = 0
-        return LazyArray(self._reader["MLA_overlap"])
+        if "MLA_overlap" in self._reader:
+            return LazyArray(self._reader["MLA_overlap"])
+        return np.array(0)
 
     @compulsory_property
     def tilt(self):
         "Tilt angle [azimuth elevation] [rad rad]"
-        # TODO: Default value = [0, 0]
-        return LazyArray(self._reader["tilt"])
+        if "tilt" in self._reader:
+            return LazyArray(self._reader["tilt"])
+        return np.array([0, 0])
 
     @compulsory_property
     def minimum_aperture(self):
         "Minimum aperture size in the [x y] direction"
-        # TODO: Default value = [1e-3, 1e-3]
-        return LazyArray(self._reader["minimum_aperture"])
+        if "minimum_aperture" in self._reader:
+            return LazyArray(self._reader["minimum_aperture"])
+        return np.array([1e-3, 1e-3])
 
     @compulsory_property
     def maximum_aperture(self):
         "Maximum aperture size in the [x y] direction"
-        # TODO: Default value = [10, 10]
-        return LazyArray(self._reader["maximum_aperture"])
+        if "maximum_aperture" in self._reader:
+            return LazyArray(self._reader["maximum_aperture"])
+        return np.array([10, 10])
 
     # Optional properties
     @optional_property

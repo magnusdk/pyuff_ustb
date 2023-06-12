@@ -1,3 +1,5 @@
+import numpy as np
+
 from pyuff.objects import Uff
 from pyuff.objects.uff import compulsory_property, dependent_property
 from pyuff.readers import LazyArray, LazyScalar
@@ -32,41 +34,41 @@ class Phantom(Uff):
 
     # Dependent properties
     @dependent_property
-    def n_points(self):
+    def N_points(self):
         "Number of points"
-        # TODO
+        return self.points.shape[0]
 
     @dependent_property
     def x(self):
         "Points position in the x axis [m]"
-        # TODO
+        return self.points[:, 0]
 
     @dependent_property
     def y(self):
         "Points position in the y axis [m]"
-        # TODO
+        return self.points[:, 1]
 
     @dependent_property
     def z(self):
         "Points position in the z axis [m]"
-        # TODO
+        return self.points[:, 2]
 
     @dependent_property
-    def hamma(self):
+    def Gamma(self):
         "Reflection coefficient [unitless]"
-        # TODO
+        return self.points[:, 3]
 
     @dependent_property
     def r(self):
         "Distance from the points to the origin [m]"
-        # TODO
+        return np.sqrt(self.x**2 + self.y**2 + self.z**2)
 
     @dependent_property
     def theta(self):
         "Angle in the azimuth direction respect to origin [rad]"
-        # TODO
+        return np.arctan2(self.x, self.z)
 
     @dependent_property
     def phi(self):
         "Angle in the elevation direction respect to origin [rad]"
-        # TODO
+        return np.arctan2(self.y, self.z)

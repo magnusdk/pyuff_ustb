@@ -1,5 +1,7 @@
-from pyuff.objects.uff import compulsory_property, dependent_property
+import numpy as np
+
 from pyuff.objects.scan import Scan
+from pyuff.objects.uff import compulsory_property, dependent_property
 from pyuff.readers import LazyArray, util
 
 
@@ -27,26 +29,26 @@ class SectorScan(Scan):
 
     # Dependent properties
     @dependent_property
-    def n_azimuth_axis(self):
+    def N_azimuth_axis(self):
         "Number of pixels in azimuth_axis"
-        # TODO
+        return len(self.azimuth_axis)
 
     @dependent_property
-    def n_depth_axis(self):
+    def N_depth_axis(self):
         "Number of pixels in depth_axis"
-        # TODO
+        return len(self.depth_axis)
 
     @dependent_property
-    def n_origins(self):
+    def N_origins(self):
         "Number of scanline origins"
-        # TODO
+        return len(self.origin)
 
     @dependent_property
     def depth_step(self):
         "Step size along the depth axis [m]"
-        # TODO
+        return np.mean(np.diff(self.depth_axis))
 
     @dependent_property
     def reference_distance(self):
         "Distance used for the calculation of the phase term [m]"
-        # TODO
+        raise NotImplementedError("Create an issue on the repository if you need this.")

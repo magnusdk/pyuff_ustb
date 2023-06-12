@@ -71,12 +71,12 @@ class ChannelData(Uff):
     @dependent_property
     def N_elements(self) -> int:
         "Number of elements in the probe"
-        return self.probe.n_elements
+        return self.probe.N_elements
 
     @dependent_property
     def N_channels(self) -> int:
         "Number of elements in the probe"
-        return self.probe.n_elements
+        return self.probe.N_elements
 
     @dependent_property
     def N_waves(self) -> int:

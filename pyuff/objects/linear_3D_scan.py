@@ -1,5 +1,5 @@
-from pyuff.objects.uff import compulsory_property, optional_property
 from pyuff.objects.scan import Scan
+from pyuff.objects.uff import compulsory_property, optional_property
 from pyuff.readers import LazyArray, LazyScalar
 
 
@@ -24,9 +24,9 @@ class Linear3DScan(Scan):
     @optional_property
     def n_radial_axis(self):
         "Number of pixels in the x_axis"
-        # TODO
+        return len(self.radial_axis)
 
     @optional_property
     def n_axial_axis(self):
         "Number of pixels in the z_axis"
-        # TODO
+        return len(self.axial_axis)
