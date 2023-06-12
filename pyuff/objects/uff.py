@@ -207,9 +207,17 @@ def _attrs_equal(attrs1: dict, attrs2: dict) -> bool:
                 return False
             v1 = v1.decode("utf-8") if isinstance(v1, bytes) else v1
             v2 = v2.decode("utf-8") if isinstance(v2, bytes) else v2
+            if k == "name":
+                # Ignore slashes in names
+                v1 = v1.strip("/")
+                v2 = v2.strip("/")
             if v1 != v2:
                 if _BACKWORDS_COMPATIBLE_EQUALS:
-                    if not {v1, v2} == {"scan", "focus"}:
+                    if not (
+                        ({v1, v2} == {"scan", "focus"})
+                        or ({v1, v2} == {"origin", "apex"})
+                        or ({v1, v2} == {"origin", "origo"})
+                    ):
                         return False
                 else:
                     return False
