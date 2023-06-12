@@ -1,17 +1,70 @@
-# PyUFF v2 (potentially, I don't know)
-## Goals
-- Easy to read and write UFF files
-- Lazy loading of values from file
-- Parallel reading (for streaming data)
-- Easy to inspect content of `.h5` files
+# PyUFF
+An implementation of USTB's ultrasound file format (UFF) in Python.
 
-## Some design decisions
-- Stricter data-structure than original pyuff because UFF objects and readers are coupled. For example: a `ChannelData` object (`pyuff.objects.channel_data.ChannelData`) has a field called `probe` which it explicitly reads from _"probe"_ (under the path for the channel data object) in the UFF file. The original pyuff reads the UFF-file in the same way that USTB does, where the class of the object is determined by the `class` attribute in the UFF file. This is not the case in pyuff_v2 — the class is determined by the field (`ChannelData.probe` in this case) and an error is thrown if it does not have the correct `class` attribute.
-- (Almost) everything is lazy-loaded, meaning that only fields that are used will be loaded into memory. This means that it becomes faster to read UFF-files where we only care about a single field (for example when reading the `scan` field of a UFF-file that additionally has a really big `channel_data` field — the channel data will not be loaded into memory. Or if we only care about the `speed_of_sound` of the `channel_data` field, then only the speed of sound will be read from the .h5 file). It also means that we can support parallel reading of UFF-files or streaming of channel data from UFF-files.
+_Note that this project only implements USTB's version of UFF, which is considered version `0.0.1`. Multiple versions of UFF exists, for example check out [uff-reader](https://github.com/waltsims/uff-reader). However, if you only planning to use USTB's version of UFF then you have come to the right place :)_
 
-## Some more comments on the code
-- `@cached_property` means that when a user accesses the property, the returned value is cached. This means that a value will only be read from the .h5 file once, and we assume that the file doesn't change. The cache can be cleared by deleting the property from the object (Example: `del channel_data.probe`).
-- A `LazyArray` represents a numpy array that can be read from the file. It is not actually read until some numpy function is applied to it or when slicing into it.
-- Because everything is lazy-loaded from a file, there are a lot of opening and closing of files. I don't think this adds up to a lot of time, but I will perform some profiling of this.
-- We strongly couple pyuff with the .h5 format, meaning that it becomes more difficult to support other file-format in the future. I assume this is not a problem.
-- Fields that are not in the UFF specification are not read. This means that if a `ChannelData` object in an UFF file has a custom field called `my_field` (`"/channel_data/my_field"`) it can not be easily accessed.¨
+## Installing
+Run the following command in your Pytho virtual environment:
+```bash
+pip install git+https://bitbucket.org/ntnuultrasoundgroup/pyuff.git@pyuff_v2
+```
+To verify that the installation was successful, run the following command:
+```bash
+python -c "import pyuff; print(pyuff.__version__)"
+```
+
+## Reading UFF files
+```python
+import pyuff
+
+uff = pyuff.Uff(filepath)
+print(uff)  # <- print the keys of the UFF file
+channel_data = uff.read("channel_data")
+scan = uff.read("scan")
+```
+
+## Writing UFF files
+```python
+import pyuff
+import numpy as np
+
+scan = pyuff.LinearScan(
+    x_axis=np.linspace(-10e3, 10e3, 128),
+    z_axis=np.linspace(0, 80e3, 128),
+)
+scan.write("my_scan.uff", "scan")
+# To overwrite an existing field in the file, pass overwrite=True like so:
+# scan.write("my_scan.uff", "scan", overwrite=True)
+```
+
+## UFF object structure
+See the modules under `pyuff/objects` for all implemented UFF objects. The most important ones are [`ChannelData`](pyuff/objects/channel_data.py) and [`Scan`](pyuff/objects/scan.py). 
+- `ChannelData` contains the raw ultrasound data under the `data` (`channel_data.data`) property and other important beamforming properties such as `sampling_frequency` and `probe` setup.
+- `Scan` contains the points that are to be beamformed.
+
+Check out the source code under `pyuff/objects/channel_data.py` in your favorite code editor to get a better understanding of the UFF object structure.
+
+## Lazy loading
+PyUFF strives to only load what you need in order to speed up the reading process. This is done by using lazily loaded properties. Lazily loaded values are only actually read from the file when it is used. This is contrary to eagerly loading where _all_ values are automatically read from the file when the object is created. Another potential benefit from lazy loading is that it enables streaming of data from the file, which may speed up the reading process even further. Streaming of PyUFF data is not implemented yet.
+
+In general, all UFF object fields are of the type `cached_property`. When a `cached_property` is accessed for the first time, its code will run, and the returned value will be cached, meaning that for most PyUFF fields, values are only read from a file once. The `cached_property` is further split into two types:
+- `compulsory_property`: fields that must be set in an object in order to _write_ to a file.
+- `optional_property`: optional fields that may be None when writing to a file.
+Additionally, there is `dependent_property`, which is **_not_** cached nor read from a file. Instead, it is calculated from other compulsory and/or optional properties in the object. All properties of the PyUFF objects are decorated with either `@compulsory_property`, `@optional_property` or `@dependent_property`.
+
+To invalidate a property from the cache (in order to re-read it from the file), simply delete the property from the object. Example:
+```python
+obj = uff.read("channel_data")
+data = obj.data[...]  # <- This will read the data from the file
+data = obj.data[...]  # <- Subsequent calls do not read from the file
+del obj.data  # <- This deletes the data from the cache
+data = obj.data[...]  # <- The data is read again
+```
+
+You can still eagerly load all values from the file by calling `pyuff.eager_load` on the object. Note that `eager_load` does not update the object but returns a new copy. Example:
+```python
+obj = uff.read("channel_data")
+# Eagerly load all values (this usually takes a few seconds, depending on the file size)
+# pyuff.eager_load returns a copy of the object, leaving the original unchanged.
+obj = pyuff.eager_load(obj)
+```
