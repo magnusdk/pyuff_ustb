@@ -8,6 +8,10 @@ class ReaderKeyError(KeyError):
     pass
 
 
+class ReaderAttrsKeyError(KeyError):
+    pass
+
+
 class Reader:
     def __init__(
         self, filepath: Union[str, "Reader"], obj_path: Union[str, Sequence[str]] = ()
@@ -33,7 +37,7 @@ overwritten by the reader's obj_path."
 
     def keys(self):
         return list(self)  # See __iter__
-    
+
     @property
     def attrs(self) -> dict:
         with self.h5_obj as obj:
@@ -52,6 +56,8 @@ overwritten by the reader's obj_path."
                 for name in self.obj_path:
                     obj = obj[name]
                 yield obj
+        except ReaderAttrsKeyError as e:
+            raise e  # Do not catch ReaderAttrsKeyError
         except KeyError as e:
             raise ReaderKeyError(
                 f"Could not find object at path {self.obj_path}"

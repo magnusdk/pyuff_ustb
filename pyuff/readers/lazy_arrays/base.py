@@ -1,10 +1,11 @@
 from dataclasses import dataclass
 from functools import reduce
-from typing import Sequence, Tuple
+from typing import Sequence, Tuple, Union
 
+import h5py
 import numpy as np
 
-from pyuff.readers import Reader
+from pyuff.readers import Reader, ReaderAttrsKeyError
 from pyuff.readers.lazy_arrays.lazy_operations import (
     LazyOperation,
     LazyTranspose,
@@ -12,6 +13,13 @@ from pyuff.readers.lazy_arrays.lazy_operations import (
     apply_lazy_operations_on_index,
     apply_lazy_operations_on_shape,
 )
+
+
+def _attrs_get(obj: Union[h5py.Group, h5py.Dataset], key: str):
+    try:
+        return obj.attrs[key]
+    except KeyError as e:
+        raise ReaderAttrsKeyError() from e
 
 
 @dataclass
@@ -30,9 +38,7 @@ class LazyArray:
 
     def __getitem__(self, k) -> np.ndarray:
         with self._reader.h5_obj as obj:
-            # TODO: Accessing attrs may throw a KeyError which is caught by the Reader.
-            # It should not be caught by the Reader!
-            is_complex = obj.attrs["complex"][0]
+            is_complex = _attrs_get(obj, "complex")[0]
             if is_complex:
                 real = obj["real"]
                 imag = obj["imag"]
@@ -50,7 +56,7 @@ class LazyArray:
     @property
     def shape(self) -> Tuple[int, ...]:
         with self._reader.h5_obj as obj:
-            is_complex = obj.attrs["complex"][0]
+            is_complex = _attrs_get(obj, "complex")[0]
             shape = obj["real"].shape if is_complex else obj.shape
             return apply_lazy_operations_on_shape(shape, self._lazy_operations)
 
@@ -65,7 +71,7 @@ class LazyArray:
     @property
     def dtype(self) -> np.dtype:
         with self._reader.h5_obj as obj:
-            is_complex = obj.attrs["complex"][0]
+            is_complex = _attrs_get(obj, "complex")[0]
             # NOTE: Complex numbers may have a different number of bits than stated
             return np.complex128 if is_complex else obj.dtype
 
@@ -113,7 +119,7 @@ class LazyArray:
 
     def __rtruediv__(self, other):
         return other / self[...]
-    
+
     # Check for equality
     def __eq__(self, other):
         return np.array_equal(self[...], other)
