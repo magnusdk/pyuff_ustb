@@ -95,7 +95,9 @@ def test_reading_and_writing(uff_filepath):
             # Load and write each object in the uff file
             for k in read_uff:
                 v = pyuff.eager_load(read_uff[k])
-                pyuff.write_object(h5_file, v, k, overwrite=True)
+                pyuff.write_object(
+                    h5_file, v, k, overwrite=True, ignore_missing_compulsory_fields=True
+                )
 
         # Read the written file and compare its objects to the ones in the original
         written_uff = pyuff.Uff(tmp.name)
@@ -107,6 +109,34 @@ def test_reading_and_writing(uff_filepath):
         assert _h5_equals(
             read_uff._reader, written_uff._reader
         ), "H5 files do not match"
+
+
+def test_writing_point():
+    point = pyuff.Point(distance=0, azimuth=0, elevation=0)
+    with tempfile.NamedTemporaryFile(suffix=".uff") as file:
+        point.write(file.name, "point")
+        # Compare the results
+        uff = pyuff.Uff(file.name)
+        assert uff.read("point") == point
+
+
+def test_writing_missing_compulsory_fields():
+    point = pyuff.Point(
+        distance=0,
+        azimuth=0,
+        # elevation=0,  # <- leave out this compulsory field
+    )
+    with tempfile.NamedTemporaryFile(suffix=".uff") as file:
+        with pytest.raises(ValueError):
+            # Writing an object with missing compulsory fields should raise an error
+            point.write(file.name, "point")
+
+    with tempfile.NamedTemporaryFile(suffix=".uff") as file:
+        # With ignore_missing_compulsory_fields=True we write the object anyway
+        point.write(file.name, "point", ignore_missing_compulsory_fields=True)
+        # Compare the results
+        uff = pyuff.Uff(file.name)
+        assert uff.read("point") == point
 
 
 def _compare_dicts(d1, d2):
