@@ -41,7 +41,9 @@ class SectorScan(Scan):
     @dependent_property
     def N_origins(self):
         "Number of scanline origins"
-        return len(self.origin)
+        if isinstance(self.origin, (list, tuple)):
+            return len(self.origin)
+        return 1
 
     @dependent_property
     def depth_step(self):
