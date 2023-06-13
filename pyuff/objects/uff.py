@@ -151,8 +151,8 @@ class Uff:
                 hf,
                 self,
                 location,
-                overwrite=overwrite,
-                ignore_missing_compulsory_fields=ignore_missing_compulsory_fields,
+                overwrite,
+                ignore_missing_compulsory_fields,
             )
 
     def _preprocess_write(self, name: str, value):
@@ -295,7 +295,13 @@ the object anyway, set ignore_missing_compulsory_fields=True.
 """
                 )
             value = obj._preprocess_write(name, value)
-            write_object(hf, value, [*location, name], overwrite=overwrite)
+            write_object(
+                hf,
+                value,
+                [*location, name],
+                overwrite,
+                ignore_missing_compulsory_fields,
+            )
 
     elif isinstance(obj, str):
         name = location[-1]
@@ -349,7 +355,11 @@ the object anyway, set ignore_missing_compulsory_fields=True.
             group.attrs["size"] = np.array([1, len(obj)])
             for i, v in enumerate(obj):
                 write_object(
-                    hf, v, [*location, _item_name(name, i)], overwrite=overwrite
+                    hf,
+                    v,
+                    [*location, _item_name(name, i)],
+                    overwrite,
+                    ignore_missing_compulsory_fields,
                 )
         # Otherwise it is a list of Uff objects
         else:
@@ -364,7 +374,11 @@ the object anyway, set ignore_missing_compulsory_fields=True.
                 ), "Assume list items are always Uffs. Create a issue on \
     the repository if you think this is not the case."
                 write_object(
-                    hf, v, [*location, _item_name(name, i)], overwrite=overwrite
+                    hf,
+                    v,
+                    [*location, _item_name(name, i)],
+                    overwrite,
+                    ignore_missing_compulsory_fields,
                 )
 
     elif isinstance(obj, Enum):
