@@ -178,10 +178,23 @@ class Uff:
         return iter(self._get_fields())
 
     def __repr__(self) -> str:
-        field_strs = [
-            f"{field}={_present_field_value(getattr(self, field))}" for field in self
-        ]
-        return self.__class__.__name__ + "(" + ", ".join(field_strs) + ")"
+        field_strs = []
+        for field in self._get_fields(skip_dependent_properties=True):
+            try:
+                value = getattr(self, field)
+                if value is not None:
+                    field_strs.append(f"{field}={_present_field_value(value)}")
+            except NotImplementedError:
+                field_strs.append(f"{field}=NotImplemented")
+        single_line_joined = self.__class__.__name__ + "(" + ", ".join(field_strs) + ")"
+        if len(single_line_joined) <= 80:
+            # Represent it as a single line if it fits in 80 characters
+            return single_line_joined
+        else:
+            # Otherwise represent it as a multiline string
+            return (
+                self.__class__.__name__ + "(\n    " + ",\n    ".join(field_strs) + "\n)"
+            )
 
     def __eq__(self, other):
         if type(self) != type(other):
