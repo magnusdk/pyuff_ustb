@@ -54,3 +54,47 @@ class SectorScan(Scan):
     def reference_distance(self):
         "Distance used for the calculation of the phase term [m]"
         raise NotImplementedError("Create an issue on the repository if you need this.")
+
+    # Unlike the base scan object (pyuff.Scan), x, y, and z are not compulsory
+    # properties, but calculated based on azimuth_axis, depth_axis, and origin.
+    @dependent_property
+    def x(self):
+        if (
+            (self.azimuth_axis is None)
+            or (self.depth_axis is None)
+            or (self.origin is None)
+        ):
+            raise ValueError(
+                "Cannot calculate x without azimuth_axis, depth_axis, and origin"
+            )
+        rho, theta = np.meshgrid(self.depth_axis, self.azimuth_axis)
+        N_pixels = rho.size
+        return np.reshape(rho * np.sin(theta) + self.origin.x, [N_pixels])
+
+    @dependent_property
+    def y(self):
+        if (
+            (self.azimuth_axis is None)
+            or (self.depth_axis is None)
+            or (self.origin is None)
+        ):
+            raise ValueError(
+                "Cannot calculate y without azimuth_axis, depth_axis, and origin"
+            )
+        rho, theta = np.meshgrid(self.depth_axis, self.azimuth_axis)
+        N_pixels = rho.size
+        return np.reshape(np.zeros(rho.shape) + self.origin.y, [N_pixels])
+
+    @dependent_property
+    def z(self):
+        if (
+            (self.azimuth_axis is None)
+            or (self.depth_axis is None)
+            or (self.origin is None)
+        ):
+            raise ValueError(
+                "Cannot calculate z without azimuth_axis, depth_axis, and origin"
+            )
+        rho, theta = np.meshgrid(self.depth_axis, self.azimuth_axis)
+        N_pixels = rho.size
+        return np.reshape(rho * np.cos(theta) + self.origin.z, [N_pixels])
