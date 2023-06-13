@@ -69,3 +69,28 @@ overwritten by the reader's obj_path."
     obj_path={self.obj_path!r},
     keys={self.keys()!r},
 )"""
+
+
+class NoneReader(Reader):
+    """NoneReader is used instead of None to avoid having to check for None everywhere.
+    If a user tries to read from a NoneReader we raise an error."""
+
+    def __init__(self):
+        pass
+
+    def __getitem__(self, path):
+        raise ReaderKeyError("Reader not set.")
+
+    @property
+    def attrs(self):
+        return {}  # Empty attrs
+
+    def __iter__(self):
+        return iter([])  # Empty iterator
+
+    @property
+    def h5_obj(self):
+        raise ValueError("Reader not set.")
+
+    def __repr__(self):
+        return f"""NoneReader(<No reader has been set>)"""

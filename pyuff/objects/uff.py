@@ -5,7 +5,7 @@ from typing import Any, List, Optional, Sequence, Tuple, TypeVar, Union
 import h5py
 import numpy as np
 
-from pyuff.readers import Reader, ReaderKeyError, util
+from pyuff.readers import NoneReader, Reader, ReaderKeyError, util
 from pyuff.readers.lazy_arrays import LazyArray, LazyScalar
 
 # A flag to enable equality checks with backwards compatibility for old files with
@@ -47,7 +47,9 @@ class Uff:
     def __init__(self, _reader: Optional[Union[Reader, str]] = None, **kwargs):
         if isinstance(_reader, str):
             _reader = Reader(_reader)
-        if not isinstance(_reader, Reader) and _reader is not None:
+        elif _reader is None:
+            _reader = NoneReader()
+        elif not isinstance(_reader, Reader):
             raise TypeError(
                 f"The first argument must be of type Reader or str (got \
 {type(_reader)}). Try giving the arguments as keyword arguments instead."
@@ -89,11 +91,7 @@ class Uff:
     def _attrs(self) -> dict:
         """Return the attrs of the h5 object as a dict. Return an empty dict if no
         _reader is provided"""
-        if self._reader is not None:
-            with self._reader.h5_obj as obj:
-                return dict(obj.attrs)
-        else:
-            return {}
+        return dict(self._reader.attrs)
 
     def read(self, name: str) -> "Uff":
         """Read an Uff object from the file. A Reader must be provided in order to read.
@@ -117,6 +115,7 @@ class Uff:
         filepath: str,
         location: Union[str, Tuple[str, ...], List[str]],
         overwrite: bool = False,
+        ignore_missing_compulsory_fields: bool = False,
     ):
         """Write the Uff to a file.
 
@@ -131,6 +130,11 @@ class Uff:
         overwrite : bool, optional
             Whether to overwrite the location if it already exists. If the location
             already exists and overwrite=False, a ValueError is raised.
+        ignore_missing_compulsory_fields : bool, optional
+            Whether to ignore missing compulsory fields. If a compulsory field is not
+            set then usually a ValueError is raised. Setting
+            ignore_missing_compulsory_fields=True will ignore this error and write the
+            object anyway.
 
         Example:
         Write channel data and a scan to a file:
@@ -143,7 +147,13 @@ class Uff:
         >> channel_data3.write("our_channel_data.uff", "ole_marius/channel_data")
         """
         with h5py.File(filepath, "a") as hf:
-            write_object(hf, self, location, overwrite=overwrite)
+            write_object(
+                hf,
+                self,
+                location,
+                overwrite=overwrite,
+                ignore_missing_compulsory_fields=ignore_missing_compulsory_fields,
+            )
 
     def _preprocess_write(self, name: str, value):
         return value
@@ -176,52 +186,20 @@ class Uff:
     def __eq__(self, other):
         if type(self) != type(other):
             return False
-        if not _attrs_equal(self._attrs, other._attrs):
-            return False
         for field in self._get_fields(skip_dependent_properties=True):
             value1 = getattr(self, field)
             value2 = getattr(other, field)
-            if isinstance(value1, (np.ndarray, LazyArray, LazyScalar)):
-                if not isinstance(value2, (np.ndarray, LazyArray, LazyScalar)):
+            if isinstance(value1, (int, float, np.ndarray, LazyArray, LazyScalar)):
+                if not isinstance(
+                    value2, (int, float, np.ndarray, LazyArray, LazyScalar)
+                ):
                     return False
-                if not np.array_equal(value1[...], value2[...]):
+                if not np.array_equal(np.array(value1), np.array(value2)):
                     return False
             else:
                 if value1 != value2:
                     return False
         return True
-
-
-def _attrs_equal(attrs1: dict, attrs2: dict) -> bool:
-    if attrs1.keys() != attrs2.keys():
-        return False
-    for k in attrs1.keys():
-        v1, v2 = attrs1[k], attrs2[k]
-        if isinstance(v1, np.ndarray):
-            if not isinstance(v2, np.ndarray):
-                return False
-            if not np.array_equal(v1, v2):
-                return False
-        elif isinstance(v1, (str, bytes)):
-            if not isinstance(v2, (str, bytes)):
-                return False
-            v1 = v1.decode("utf-8") if isinstance(v1, bytes) else v1
-            v2 = v2.decode("utf-8") if isinstance(v2, bytes) else v2
-            if k == "name":
-                # Ignore slashes in names
-                v1 = v1.strip("/")
-                v2 = v2.strip("/")
-            if v1 != v2:
-                if _BACKWORDS_COMPATIBLE_EQUALS:
-                    if not (
-                        ({v1, v2} == {"scan", "focus"})
-                        or ({v1, v2} == {"origin", "apex"})
-                        or ({v1, v2} == {"origin", "origo"})
-                    ):
-                        return False
-                else:
-                    return False
-    return True
 
 
 def eager_load(obj: T) -> T:
@@ -273,6 +251,7 @@ def write_object(
     obj: Any,
     location: Union[str, Sequence[str]],
     overwrite: bool = False,
+    ignore_missing_compulsory_fields: bool = False,
 ):
     from pyuff.common import get_name_from_class
 
@@ -301,8 +280,20 @@ overwrite=True to overwrite it."
         group.attrs["array"] = np.array([0])  # False
         group.attrs["size"] = np.array([1, 1])
 
+        t = type(obj)
         for name in obj._get_fields(skip_dependent_properties=True):
             value = getattr(obj, name)
+            if (
+                value is None
+                and isinstance(getattr(t, name), compulsory_property)
+                and not ignore_missing_compulsory_fields
+            ):
+                raise ValueError(
+                    f"""The compulsory field '{name}' is set to None. Compulsory fields 
+may not be None when writing an object to an UFF file. To ignore this error and write 
+the object anyway, set ignore_missing_compulsory_fields=True.
+"""
+                )
             value = obj._preprocess_write(name, value)
             write_object(hf, value, [*location, name], overwrite=overwrite)
 
@@ -317,12 +308,7 @@ overwrite=True to overwrite it."
 
     elif isinstance(obj, (int, float, np.ndarray, LazyArray, LazyScalar)):
         name = location[-1]
-        is_scalar = isinstance(obj, LazyScalar)
         obj = np.array(obj)  # <- Ensure array and load the data if lazy
-        if is_scalar:
-            # Scalar values are usually stored as (1,1) arrays in UFF files, let's do
-            # the same.
-            obj = np.expand_dims(obj, [0, 1])
         # We always write *.attrs["class"] = "single". I don't think it matters.
         if np.iscomplexobj(obj):
             group = hf.create_group(location_str)
