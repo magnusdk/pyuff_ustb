@@ -67,7 +67,7 @@ class SectorScan(Scan):
             raise ValueError(
                 "Cannot calculate x without azimuth_axis, depth_axis, and origin"
             )
-        rho, theta = np.meshgrid(self.depth_axis, self.azimuth_axis)
+        rho, theta = np.meshgrid(self.depth_axis, self.azimuth_axis, indexing="ij")
         N_pixels = rho.size
         return np.reshape(rho * np.sin(theta) + self.origin.x, [N_pixels])
 
@@ -81,7 +81,7 @@ class SectorScan(Scan):
             raise ValueError(
                 "Cannot calculate y without azimuth_axis, depth_axis, and origin"
             )
-        rho, theta = np.meshgrid(self.depth_axis, self.azimuth_axis)
+        rho, theta = np.meshgrid(self.depth_axis, self.azimuth_axis, indexing="ij")
         N_pixels = rho.size
         return np.reshape(np.zeros(rho.shape) + self.origin.y, [N_pixels])
 
@@ -95,6 +95,6 @@ class SectorScan(Scan):
             raise ValueError(
                 "Cannot calculate z without azimuth_axis, depth_axis, and origin"
             )
-        rho, theta = np.meshgrid(self.depth_axis, self.azimuth_axis)
+        rho, theta = np.meshgrid(self.depth_axis, self.azimuth_axis, indexing="ij")
         N_pixels = rho.size
         return np.reshape(rho * np.cos(theta) + self.origin.z, [N_pixels])
