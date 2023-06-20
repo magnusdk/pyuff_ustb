@@ -181,7 +181,10 @@ class Uff:
         field_strs = []
         for field in self._get_fields(skip_dependent_properties=True):
             try:
-                value = getattr(self, field)
+                if type(self) is Uff:
+                    value = self.read(field)
+                else:
+                    value = getattr(self, field)
                 if value is not None:
                     field_strs.append(f"{field}={_present_field_value(value)}")
             except NotImplementedError:
