@@ -30,7 +30,7 @@ def read_list_of_strings(reader: Reader) -> Union[None, List[str]]:
 
     def parse(integer_list: List[int]) -> str:
         int_chars = np.squeeze(integer_list)  # A list of integers
-        chars = [chr(c) for c in int_chars]  # Convert the integers to chars
+        chars = [chr(int(c)) for c in int_chars]  # Convert the integers to chars
         value = "".join(chars)  # Join the chars into a string
         return value
 
