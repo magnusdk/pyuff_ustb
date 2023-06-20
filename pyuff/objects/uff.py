@@ -242,8 +242,11 @@ def _present_field_value(value):
     elif isinstance(value, (list, tuple)):
         open_bracket = "[" if isinstance(value, list) else "("
         close_bracket = "]" if isinstance(value, list) else ")"
-        return f"<{open_bracket}{_present_field_value(value[0])}... ({len(value)} \
+        if len(value) > 1:
+            return f"<{open_bracket}{_present_field_value(value[0])}... ({len(value)} \
 items in total){close_bracket}>"
+        else:
+            return f"{open_bracket}{_present_field_value(value[0])}{close_bracket}"
     else:
         return repr(value)
 
