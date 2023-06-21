@@ -6,7 +6,8 @@ import numpy as np
 import pytest
 
 import pyuff
-from pyuff.readers import Reader, ReaderKeyError
+from pyuff.common import get_class_from_name
+from pyuff.readers import H5Reader, ReaderKeyError
 
 # Default download location when using vbeam.util.download.cached_download
 _data_folder = os.path.expanduser("~/.vbeam_downloads/ustb.no/datasets/")
@@ -139,7 +140,7 @@ def test_writing_missing_compulsory_fields():
         assert uff.read("point") == point
 
 
-def _compare_dicts(d1, d2):
+def _compare_dicts(d1: dict, d2: dict):
     for k in d1.keys():
         if k not in d2.keys():
             return False
@@ -168,11 +169,11 @@ def _compare_dicts(d1, d2):
     return True
 
 
-def _h5_equals(r1: Reader, r2: Reader) -> bool:
-    if len(r1.obj_path) > 0:  # Ignore root attributes
+def _h5_equals(r1: H5Reader, r2: H5Reader) -> bool:
+    if len(r1.path) > 0:  # Ignore root attributes
         if not _compare_dicts(dict(r1.attrs), dict(r2.attrs)):
             return False
-    with r1.h5_obj as hf1, r2.h5_obj as hf2:
+    with r1.read() as hf1, r2.read() as hf2:
         assert type(hf1) == type(hf2)
         if isinstance(hf1, h5py.Dataset):
             v1, v2 = np.squeeze(hf1[...]), np.squeeze(hf2[...])
@@ -186,6 +187,16 @@ def _h5_equals(r1: Reader, r2: Reader) -> bool:
                         (k == "origo" and "origin" in r2)
                         or (k == "apex" and "origin" in r2)
                         or (k == "scan" and "focus" in r2)
+                        or (
+                            k in ["x", "y", "z"]
+                            and issubclass(
+                                get_class_from_name(r1.attrs["class"]),
+                                (
+                                    pyuff.LinearScan,
+                                    pyuff.SectorScan,
+                                ),
+                            )
+                        )
                     ):
                         continue
                     return False
@@ -199,6 +210,14 @@ def _h5_equals(r1: Reader, r2: Reader) -> bool:
                     if not _h5_equals(sub_r1, sub_r2):
                         return False
                 except ReaderKeyError:
+                    if k in ["x", "y", "z"] and issubclass(
+                        get_class_from_name(r1.attrs["class"]),
+                        (
+                            pyuff.LinearScan,
+                            pyuff.SectorScan,
+                        ),
+                    ):
+                        continue
                     return False
         else:
             raise TypeError(f"Unknown type {type(r1)}")
