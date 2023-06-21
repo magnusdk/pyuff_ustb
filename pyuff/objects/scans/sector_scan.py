@@ -1,24 +1,29 @@
+from typing import TYPE_CHECKING, List, Union
+
 import numpy as np
 
 from pyuff.objects.scans.scan import Scan
 from pyuff.objects.uff import compulsory_property, dependent_property
 from pyuff.readers import LazyArray, util
 
+if TYPE_CHECKING:
+    from pyuff.objects.point import Point
+
 
 class SectorScan(Scan):
     # Compulsory properties
     @compulsory_property
-    def azimuth_axis(self):
+    def azimuth_axis(self) -> np.ndarray:
         "Vector containing the azimuth coordinates [rad]"
         return LazyArray(self._reader["azimuth_axis"])
 
     @compulsory_property
-    def depth_axis(self):
+    def depth_axis(self) -> np.ndarray:
         "Vector containing the distance coordinates [m]"
         return LazyArray(self._reader["depth_axis"])
 
     @compulsory_property
-    def origin(self):
+    def origin(self) -> Union["Point", List["Point"]]:
         "Vector of UFF.POINT objects"
         from pyuff.objects.point import Point
 
@@ -29,24 +34,24 @@ class SectorScan(Scan):
 
     # Dependent properties
     @dependent_property
-    def N_azimuth_axis(self):
+    def N_azimuth_axis(self) -> int:
         "Number of pixels in azimuth_axis"
         return len(self.azimuth_axis)
 
     @dependent_property
-    def N_depth_axis(self):
+    def N_depth_axis(self) -> int:
         "Number of pixels in depth_axis"
         return len(self.depth_axis)
 
     @dependent_property
-    def N_origins(self):
+    def N_origins(self) -> int:
         "Number of scanline origins"
         if isinstance(self.origin, (list, tuple)):
             return len(self.origin)
         return 1
 
     @dependent_property
-    def depth_step(self):
+    def depth_step(self) -> float:
         "Step size along the depth axis [m]"
         return np.mean(np.diff(self.depth_axis))
 
@@ -58,7 +63,7 @@ class SectorScan(Scan):
     # Unlike the base scan object (pyuff.Scan), x, y, and z are not compulsory
     # properties, but calculated based on azimuth_axis, depth_axis, and origin.
     @dependent_property
-    def x(self):
+    def x(self) -> np.ndarray:
         if (
             (self.azimuth_axis is None)
             or (self.depth_axis is None)
@@ -72,7 +77,7 @@ class SectorScan(Scan):
         return np.reshape(rho * np.sin(theta) + self.origin.x, [N_pixels])
 
     @dependent_property
-    def y(self):
+    def y(self) -> np.ndarray:
         if (
             (self.azimuth_axis is None)
             or (self.depth_axis is None)
@@ -86,7 +91,7 @@ class SectorScan(Scan):
         return np.reshape(np.zeros(rho.shape) + self.origin.y, [N_pixels])
 
     @dependent_property
-    def z(self):
+    def z(self) -> np.ndarray:
         if (
             (self.azimuth_axis is None)
             or (self.depth_axis is None)

@@ -60,27 +60,27 @@ class Uff:
         self._reader = _reader
 
     @optional_property
-    def name(self):
+    def name(self) -> Union[str, None]:
         "Name of the dataset"
         return util.read_list_of_strings(self._reader["name"])
 
     @optional_property
-    def reference(self):
+    def reference(self) -> Union[str, None]:
         "Reference to the publication where it was used/acquired"
         return util.read_list_of_strings(self._reader["reference"])
 
     @optional_property
-    def author(self):
+    def author(self) -> Union[str, None]:
         "Contact of the authors"
         return util.read_list_of_strings(self._reader["author"])
 
     @optional_property
-    def version(self):
+    def version(self) -> Union[str, None]:
         "Version of the dataset"
         return util.read_list_of_strings(self._reader["version"])
 
     @optional_property
-    def info(self):
+    def info(self) -> Union[str, None]:
         "Other information"
         return util.read_list_of_strings(self._reader["info"])
 

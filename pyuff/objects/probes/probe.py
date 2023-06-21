@@ -1,13 +1,18 @@
+from typing import TYPE_CHECKING
+
 import numpy as np
 
 from pyuff.objects.uff import Uff, compulsory_property, dependent_property
 from pyuff.readers import LazyArray
 
+if TYPE_CHECKING:
+    from pyuff.objects.point import Point
+
 
 class Probe(Uff):
     # Compulsory properties
     @compulsory_property
-    def geometry(self):
+    def geometry(self) -> np.ndarray:
         """An array with attitude of rectangular elements.
 
         The array contains 7 fields (over all elements):
@@ -25,7 +30,7 @@ class Probe(Uff):
         return LazyArray(self._reader["geometry"])
 
     @compulsory_property
-    def origin(self):
+    def origin(self) -> "Point":
         "Location of the probe respect to origin of coordinates"
         from pyuff.objects.point import Point
 
@@ -33,51 +38,51 @@ class Probe(Uff):
 
     # Dependent properties
     @dependent_property
-    def N_elements(self):
+    def N_elements(self) -> int:
         "Number of elements"
         return self.geometry.shape[1]
 
     @dependent_property
-    def x(self):
+    def x(self) -> np.ndarray:
         "Center of the element in the x axis [m]"
         return self.geometry[0]
 
     @dependent_property
-    def y(self):
+    def y(self) -> np.ndarray:
         "Center of the element in the y axis [m]"
         return self.geometry[1]
 
     @dependent_property
-    def z(self):
+    def z(self) -> np.ndarray:
         "Center of the element in the z axis [m]"
         return self.geometry[2]
 
     @dependent_property
-    def xyz(self):
+    def xyz(self) -> np.ndarray:
         "Center of the element as an array of shape (n_elements, 3) [m]"
         return np.stack([self.x, self.y, self.z], -1)
 
     @dependent_property
-    def theta(self):
+    def theta(self) -> np.ndarray:
         "Orientation of the element in the azimuth direction [rad]"
         return self.geometry[3]
 
     @dependent_property
-    def phi(self):
+    def phi(self) -> np.ndarray:
         "Orientation of the element in the elevation direction [rad]"
         return self.geometry[4]
 
     @dependent_property
-    def width(self):
+    def width(self) -> np.ndarray:
         "Element width [m]"
         return self.geometry[5]
 
     @dependent_property
-    def height(self):
+    def height(self) -> np.ndarray:
         "Element height [m]"
         return self.geometry[6]
 
     @dependent_property
-    def r(self):
+    def r(self) -> np.ndarray:
         "Distance from the element center to the origin of coordinates [m]"
         return np.sqrt(self.x**2 + self.y**2 + self.z**2)

@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING, List, Union
+
 import numpy as np
 
 from pyuff.objects.uff import (
@@ -8,16 +10,23 @@ from pyuff.objects.uff import (
 )
 from pyuff.readers import LazyArray, util
 
+if TYPE_CHECKING:
+    from pyuff.objects.point import Point
+    from pyuff.objects.probes.probe import Probe
+    from pyuff.objects.scans.scan import Scan
+    from pyuff.objects.wave import Wave
+    from pyuff.objects.window import Window
+
 
 class Apodization(Uff):
     # Compulsory properties
     @compulsory_property
-    def probe(self):
+    def probe(self) -> "Probe":
         "UFF.PROBE class (needed for transmit & receive apodization)"
         return util.read_probe(self._reader["probe"])
 
     @compulsory_property
-    def focus(self):
+    def focus(self) -> Union["Scan", None]:
         "UFF.SCAN class (needed for transmit, receive & synthetic apodization)"
         if "focus" in self._reader:
             return util.read_scan(self._reader["focus"])
@@ -26,21 +35,21 @@ class Apodization(Uff):
         return None
 
     @compulsory_property
-    def sequence(self):
+    def sequence(self) -> Union["Wave", List["Wave"]]:
         "Collection of UFF.WAVE classes (needed for synthetic apodizaton)"
         from pyuff.objects.wave import Wave
 
         return util.read_potentially_list(self._reader["sequence"], Wave)
 
     @compulsory_property
-    def f_number(self):
+    def f_number(self) -> np.ndarray:
         "F-number [Fx Fy] [unitless unitless]"
         if "f_number" in self._reader:
             return LazyArray(self._reader["f_number"])
         return np.array([1, 1])
 
     @compulsory_property
-    def window(self):
+    def window(self) -> "Window":
         "UFF.WINDOW class, default uff.window.none"
         from pyuff.objects.window import Window
 
@@ -49,35 +58,35 @@ class Apodization(Uff):
         return Window.none
 
     @compulsory_property
-    def MLA(self):
+    def MLA(self) -> int:
         "Number of multi-line acquisitions, only valid for uff.window.scanline"
         if "MLA" in self._reader:
             return LazyArray(self._reader["MLA"])
         return np.array(1)
 
     @compulsory_property
-    def MLA_overlap(self):
+    def MLA_overlap(self) -> int:
         "Number of multi-line acquisitions, only valid for uff.window.scanline"
         if "MLA_overlap" in self._reader:
             return LazyArray(self._reader["MLA_overlap"])
         return np.array(0)
 
     @compulsory_property
-    def tilt(self):
+    def tilt(self) -> np.ndarray:
         "Tilt angle [azimuth elevation] [rad rad]"
         if "tilt" in self._reader:
             return LazyArray(self._reader["tilt"])
         return np.array([0, 0])
 
     @compulsory_property
-    def minimum_aperture(self):
+    def minimum_aperture(self) -> np.ndarray:
         "Minimum aperture size in the [x y] direction"
         if "minimum_aperture" in self._reader:
             return LazyArray(self._reader["minimum_aperture"])
         return np.array([1e-3, 1e-3])
 
     @compulsory_property
-    def maximum_aperture(self):
+    def maximum_aperture(self) -> np.ndarray:
         "Maximum aperture size in the [x y] direction"
         if "maximum_aperture" in self._reader:
             return LazyArray(self._reader["maximum_aperture"])
@@ -85,12 +94,12 @@ class Apodization(Uff):
 
     # Optional properties
     @optional_property
-    def apodization_vector(self):
+    def apodization_vector(self) -> np.ndarray:
         "Apodization vector to override the dynamic calculation of apodization"
         return LazyArray(self._reader["apodization_vector"])
 
     @optional_property
-    def origin(self):
+    def origin(self) -> Union["Point", None]:
         """POINT class to overwrite the location of the aperture window as computed on
         the wave source location"""
         from pyuff.objects.point import Point
@@ -105,14 +114,14 @@ class Apodization(Uff):
 
     # Dependent properties
     @dependent_property
-    def data(self):
+    def data(self) -> np.ndarray:
         "Apodization data"
         raise NotImplementedError(
             "Apodization computation is outside the scope of pyuff"
         )
 
     @dependent_property
-    def N_elements(self):
+    def N_elements(self) -> int:
         "Number of elements (real or synthetic)"
         if len(self.sequence) == 0:
             assert self.probe is not None, "The PROBE parameter is not set."
