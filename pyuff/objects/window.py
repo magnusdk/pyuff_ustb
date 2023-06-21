@@ -1,12 +1,12 @@
 """An enumeration of window types.
 
 Tests:
->>> window.boxcar == window.rectangular == window.flat
+>>> Window.boxcar == Window.rectangular == Window.flat
 True
->>> window(0)
-<window.none: 0>
->>> window(8)
-<window.scanline: 8>
+>>> Window(0)
+<Window.none: 0>
+>>> Window(8)
+<Window.scanline: 8>
 """
 
 
