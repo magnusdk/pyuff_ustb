@@ -1,11 +1,10 @@
 from dataclasses import dataclass
 from functools import reduce
-from typing import Sequence, Tuple, Union
+from typing import Sequence, Tuple
 
-import h5py
 import numpy as np
 
-from pyuff.readers import Reader, ReaderAttrsKeyError
+from pyuff.readers import Reader
 from pyuff.readers.lazy_arrays.lazy_operations import (
     LazyOperation,
     LazyTranspose,
@@ -13,13 +12,6 @@ from pyuff.readers.lazy_arrays.lazy_operations import (
     apply_lazy_operations_on_index,
     apply_lazy_operations_on_shape,
 )
-
-
-def _attrs_get(obj: Union[h5py.Group, h5py.Dataset], key: str):
-    try:
-        return obj.attrs[key]
-    except KeyError as e:
-        raise ReaderAttrsKeyError() from e
 
 
 @dataclass
@@ -37,17 +29,20 @@ class LazyArray:
         return f"<LazyArray shape={self.shape} dtype={self.dtype}>"
 
     def __getitem__(self, k) -> np.ndarray:
-        with self._reader.h5_obj as obj:
-            is_complex = _attrs_get(obj, "complex")[0]
-            if is_complex:
-                real = obj["real"]
-                imag = obj["imag"]
+        is_complex = np.squeeze(self._reader.attrs["complex"])
+        if is_complex:
+            with self._reader["real"].read() as obj:
+                real = obj
                 k = apply_lazy_operations_on_index(k, real.shape, self._lazy_operations)
-                value = real.__getitem__(k) + 1j * imag.__getitem__(k)
-            else:
+                real = real.__getitem__(k)
+            with self._reader["imag"].read() as obj:
+                imag = obj.__getitem__(k)
+            value = real + 1j * imag
+        else:
+            with self._reader.read() as obj:
                 k = apply_lazy_operations_on_index(k, obj.shape, self._lazy_operations)
                 value = obj.__getitem__(k)
-            return apply_lazy_operations_on_data(value, self._lazy_operations)
+        return apply_lazy_operations_on_data(value, self._lazy_operations)
 
     @property
     def T(self):
@@ -55,10 +50,11 @@ class LazyArray:
 
     @property
     def shape(self) -> Tuple[int, ...]:
-        with self._reader.h5_obj as obj:
-            is_complex = _attrs_get(obj, "complex")[0]
-            shape = obj["real"].shape if is_complex else obj.shape
-            return apply_lazy_operations_on_shape(shape, self._lazy_operations)
+        is_complex = np.squeeze(self._reader.attrs["complex"])
+        reader = self._reader["real"] if is_complex else self._reader
+        with reader.read() as obj:
+            shape = obj.shape
+        return apply_lazy_operations_on_shape(shape, self._lazy_operations)
 
     @property
     def size(self) -> int:
@@ -70,10 +66,11 @@ class LazyArray:
 
     @property
     def dtype(self) -> np.dtype:
-        with self._reader.h5_obj as obj:
-            is_complex = _attrs_get(obj, "complex")[0]
+        if np.squeeze(self._reader.attrs["complex"]):
             # NOTE: Complex numbers may have a different number of bits than stated
-            return np.complex128 if is_complex else obj.dtype
+            return np.complex128
+        with self._reader.read() as obj:
+            return obj.dtype
 
     def __len__(self) -> int:
         if self.ndim == 0:

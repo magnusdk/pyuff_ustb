@@ -16,8 +16,7 @@ class Wave(Uff):
         from pyuff.objects.wavefront import Wavefront
 
         if "wavefront" in self._reader:
-            with self._reader["wavefront"].h5_obj as h5_obj:
-                return Wavefront(np.squeeze(h5_obj[:]))
+            return util.read_enum(self._reader["wavefront"], Wavefront)
         return Wavefront.spherical
 
     @compulsory_property

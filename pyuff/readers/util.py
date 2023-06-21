@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import TYPE_CHECKING, List, Type, Union
 
 import numpy as np
@@ -16,12 +17,11 @@ def read_potentially_list(
 ) -> Union["TUff", List["TUff"]]:
     """Read a Uff or a list of Uffs, depending on the "size"
     attribute. If size>1, then we have a list of objects."""
-    with reader.h5_obj as obj:
-        n = obj.attrs["size"][1]
-        if n > 1:
-            return [cls(reader[k]) for k in obj]
-        else:
-            return cls(reader)
+    n = reader.attrs.get("size", [0, 0])[1]
+    if n > 1:
+        return [cls(reader[k]) for k in reader.keys()]
+    else:
+        return cls(reader)
 
 
 def read_list_of_strings(reader: Reader) -> Union[None, List[str]]:
@@ -34,29 +34,36 @@ def read_list_of_strings(reader: Reader) -> Union[None, List[str]]:
         value = "".join(chars)  # Join the chars into a string
         return value
 
-    with reader.h5_obj as obj:
-        n = obj.attrs.get("size", [0, 0])[1]
-        if n > 0:
-            return [parse(obj[k]) for k in obj]
-        else:
-            return parse(obj)
+    n = reader.attrs.get("size", [0, 0])[1]
+    if n > 0:
+        strs = []
+        for k in reader.keys():
+            with reader[k].read() as obj:
+                strs.append(parse(obj))
+        return strs
+    else:
+        with reader.read() as obj:
+            return parse(list(obj))
+
+
+def read_enum(reader: Reader, cls: Type[Enum]):
+    with reader.read() as obj:
+        return cls(np.squeeze(obj))
 
 
 def read_scan(scan_reader: Reader):
     from pyuff.common import get_class_from_name
     from pyuff.objects.scans.scan import Scan
 
-    with scan_reader.h5_obj as obj:
-        cls = get_class_from_name(obj.attrs["class"])
-        assert issubclass(cls, Scan), "Expected class to be a subclass of Scan"
-        return cls(scan_reader)
+    cls = get_class_from_name(scan_reader.attrs["class"])
+    assert issubclass(cls, Scan), "Expected class to be a subclass of Scan"
+    return cls(scan_reader)
 
 
 def read_probe(probe_reader: Reader):
     from pyuff.common import get_class_from_name
     from pyuff.objects.probes.probe import Probe
 
-    with probe_reader.h5_obj as obj:
-        cls = get_class_from_name(obj.attrs["class"])
-        assert issubclass(cls, Probe), "Expected class to be a subclass of Probe"
-        return cls(probe_reader)
+    cls = get_class_from_name(probe_reader.attrs["class"])
+    assert issubclass(cls, Probe), "Expected class to be a subclass of Probe"
+    return cls(probe_reader)

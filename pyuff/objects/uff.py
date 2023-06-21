@@ -5,7 +5,7 @@ from typing import Any, List, Optional, Sequence, Tuple, TypeVar, Union
 import h5py
 import numpy as np
 
-from pyuff.readers import NoneReader, Reader, ReaderKeyError, util
+from pyuff.readers import H5Reader, NoneReader, Reader, ReaderKeyError, util
 from pyuff.readers.lazy_arrays import LazyArray, LazyScalar
 
 # A flag to enable equality checks with backwards compatibility for old files with
@@ -46,7 +46,7 @@ class Uff:
 
     def __init__(self, _reader: Optional[Union[Reader, str]] = None, **kwargs):
         if isinstance(_reader, str):
-            _reader = Reader(_reader)
+            _reader = H5Reader(_reader)
         elif _reader is None:
             _reader = NoneReader()
         elif not isinstance(_reader, Reader):
@@ -101,14 +101,14 @@ class Uff:
         """
         from pyuff.common import get_class_from_name
 
-        with self._reader[name].h5_obj as obj:
-            cls_name = obj.attrs["class"]
-            cls = get_class_from_name(cls_name)
-            if cls is None:
-                raise NotImplementedError(
-                    f"Class '{cls_name}' (at location '{name}') is not implemented."
-                )
-            return util.read_potentially_list(Reader(self._reader[name]), cls)
+        reader = self._reader[name]
+        cls_name = reader.attrs["class"]
+        cls = get_class_from_name(cls_name)
+        if cls is None:
+            raise NotImplementedError(
+                f"Class '{cls_name}' (at location '{name}') is not implemented."
+            )
+        return util.read_potentially_list(reader, cls)
 
     def write(
         self,

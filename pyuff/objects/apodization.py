@@ -45,8 +45,7 @@ class Apodization(Uff):
         from pyuff.objects.window import Window
 
         if "window" in self._reader:
-            with self._reader["window"].h5_obj as h5_obj:
-                return Window(np.squeeze(h5_obj[:]))
+            return util.read_enum(self._reader["window"], Window)
         return Window.none
 
     @compulsory_property
