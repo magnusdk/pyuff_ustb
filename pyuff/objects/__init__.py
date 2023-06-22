@@ -1,3 +1,5 @@
+"Module containing class definitions of the different UFF objects."
+
 from pyuff.objects.apodization import Apodization
 from pyuff.objects.beamformed_data import BeamformedData
 from pyuff.objects.channel_data import ChannelData

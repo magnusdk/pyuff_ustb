@@ -1,6 +1,6 @@
 from enum import Enum
 from functools import cached_property
-from typing import Any, List, Optional, Sequence, Tuple, TypeVar, Union
+from typing import Any, List, Optional, Sequence, Tuple, TypeVar, Union, Generic
 
 import h5py
 import numpy as np
@@ -16,10 +16,10 @@ TUff = TypeVar("TUff", bound="Uff")
 T = TypeVar("T")  # A generic type
 
 
-class compulsory_property(cached_property):
+class compulsory_property( cached_property, Generic[T]):
     "Properties needed in order to write an UFF file."
 
-    def __get__(self, instance, owner=None):
+    def __get__(self, instance, owner=None) -> T:
         try:
             return super().__get__(instance, owner)
         except ReaderKeyError:
@@ -219,6 +219,23 @@ class Uff:
 
 
 def eager_load(obj: T) -> T:
+    """Eagerly and recursively load all the lazy fields in an object.
+
+    ``pyuff_ustb`` is lazily loaded by default, meaning that most fields are not read 
+    from file until they are needed. This function will recursively load all such 
+    fields, ensuring that all :class:`~pyuff.readers.lazy_arrays.LazyArrays` and 
+    :class:`.LazyScalars` are converted to Numpy arrays.
+    
+    A new instance of the same type as the input object is returned, but with all its 
+    fields guaranteed to be loaded into memory.
+
+    Args:
+        obj (T): An object to eagerly load.
+
+    Returns:
+        T: A new object of the same type as the input object, with all its fields
+            guaranteed to be loaded into memory.
+    """    
     if isinstance(obj, (LazyArray, LazyScalar)):
         return np.array(obj)
     elif isinstance(obj, Uff):

@@ -1,3 +1,6 @@
+"""Module containing common utility functions, such as getting the right Uff-class from 
+a string and vice-versa."""
+
 from typing import Type, Union
 
 from pyuff.objects import (

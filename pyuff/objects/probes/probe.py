@@ -15,18 +15,21 @@ class Probe(Uff):
     def geometry(self) -> np.ndarray:
         """An array with attitude of rectangular elements.
 
-        The array contains 7 fields (over all elements):
-        [
-            x,      # [m]
-            y,      # [m]
-            z,      # [m]
-            theta,  # [rad]
-            phi,    # [rad]
-            width,  # [m]
-            height, # [m]
-        ]
+        The returned array contains 7 fields (over all elements):
 
-        The shape of the returned array is (7, n_elements)."""
+        - x [meters]
+        - y [meters]
+        - z [meters]
+        - theta [radians]
+        - phi [radians]
+        - width [meters]
+        - height [meters]
+        
+
+        Returns:
+            np.ndarray: An array with attitude of rectangular elements with shape 
+            ``(7, n_elements)``.
+        """
         return LazyArray(self._reader["geometry"])
 
     @compulsory_property

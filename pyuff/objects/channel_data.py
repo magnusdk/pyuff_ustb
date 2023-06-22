@@ -1,3 +1,7 @@
+from typing import TYPE_CHECKING, List, Union
+
+import numpy as np
+
 from pyuff.objects.uff import (
     Uff,
     compulsory_property,
@@ -6,59 +10,75 @@ from pyuff.objects.uff import (
 )
 from pyuff.readers import LazyArray, LazyScalar, util
 
+if TYPE_CHECKING:
+    from pyuff.objects.phantom import Phantom
+    from pyuff.objects.probes.probe import Probe
+    from pyuff.objects.pulse import Pulse
+    from pyuff.objects.wave import Wave
+
 
 class ChannelData(Uff):
     # Compulsory properties
     @compulsory_property
-    def sampling_frequency(self):
+    def sampling_frequency(self) -> float:
+        "Sampling frequency [Hz]"
         return LazyScalar(self._reader["sampling_frequency"])
 
     @compulsory_property
-    def initial_time(self):
+    def initial_time(self) -> float:
+        "Time of the initial sample [s]"
         return LazyScalar(self._reader["initial_time"])
 
     @compulsory_property
-    def sound_speed(self):
+    def sound_speed(self) -> float:
+        "Reference sound speed [m/s]"
         return LazyScalar(self._reader["sound_speed"])
 
     @compulsory_property
-    def modulation_frequency(self):
+    def modulation_frequency(self) -> float:
+        "Modulation frequency [Hz]"
         return LazyScalar(self._reader["modulation_frequency"])
 
     @compulsory_property
-    def sequence(self):
+    def sequence(self) -> Union["Wave", List["Wave"]]:
+        "Collection of UFF.WAVE objects"
         from pyuff.objects.wave import Wave
 
         return util.read_potentially_list(self._reader["sequence"], Wave)
 
     @compulsory_property
-    def probe(self):
+    def probe(self) -> "Probe":
+        "UFF.PROBE object"
         return util.read_probe(self._reader["probe"])
 
     @compulsory_property
-    def data(self):
+    def data(self) -> np.ndarray:
+        "Channel data [time dim. x channel dim. x wave dim. x frame dim.]"
         return LazyArray(self._reader["data"]).T
 
     # Optional properties
     @optional_property
-    def pulse(self):
+    def pulse(self) -> "Pulse":
+        "UFF.PULSE object"
         from pyuff.objects.pulse import Pulse
 
         return Pulse(self._reader["pulse"])
 
     @optional_property
-    def phantom(self):
+    def phantom(self) -> "Phantom":
+        "UFF.PHANTOM object"
         from pyuff.objects.phantom import Phantom
 
         return Phantom(self._reader["phantom"])
 
     @optional_property
-    def PRF(self):
+    def PRF(self) -> float:
+        "Pulse repetition frequency [Hz]"
         prf_key = "PRF" if "PRF" in self._reader else "prf"
         return LazyScalar(self._reader[prf_key])
 
     @optional_property
-    def N_active_elements(self):
+    def N_active_elements(self) -> int:
         "Number of active transducers on receive"
         return LazyScalar(self._reader["N_active_elements"])
 
