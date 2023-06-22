@@ -7,6 +7,6 @@ Auto-generated API reference documentation.
     :template: module-template.rst
     :recursive:
     
-    pyuff.objects
-    pyuff.readers
-    pyuff.common
+    pyuff_ustb.objects
+    pyuff_ustb.readers
+    pyuff_ustb.common

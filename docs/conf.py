@@ -1,7 +1,7 @@
 import os
 import sys
 
-# Add pyuff to path
+# Add pyuff_ustb to path
 sys.path.insert(0, os.path.abspath(".."))
 
 

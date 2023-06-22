@@ -6,16 +6,16 @@ _Note that this project only implements USTB's version of UFF, which is consider
 ## Installing
 Run the following command in your Python virtual environment:
 ```bash
-pip install git+https://github.com/magnusdk/pyuff.git
+pip install git+https://github.com/magnusdk/pyuff_ustb.git
 ```
 To verify that the installation was successful, run the following command:
 ```bash
-python -c "import pyuff; print(pyuff.__version__)"
+python -c "import pyuff_ustb; print(pyuff_ustb.__version__)"
 ```
 
 ## Reading UFF files
 ```python
-import pyuff
+import pyuff_ustb as pyuff
 
 uff = pyuff.Uff(filepath)
 print(uff)  # <- print the keys of the UFF file
@@ -25,7 +25,7 @@ scan = uff.read("scan")
 
 ## Writing UFF files
 ```python
-import pyuff
+import pyuff_ustb as pyuff
 import numpy as np
 
 scan = pyuff.LinearScan(
@@ -38,12 +38,12 @@ scan.write("my_scan.uff", "scan", overwrite=True)
 ```
 
 ## UFF object structure
-See the modules under `pyuff/objects` for all implemented UFF objects. The most important ones are [`ChannelData`](pyuff/objects/channel_data.py) and [`Scan`](pyuff/objects/scan.py).
+See the modules under `pyuff_ustb/objects` for all implemented UFF objects. The most important ones are [`ChannelData`](pyuff_ustb/objects/channel_data.py) and [`Scan`](pyuff_ustb/objects/scan.py).
 
 - `ChannelData` contains the raw ultrasound data under the `data` (`channel_data.data`) property and other important beamforming properties such as `sampling_frequency` and `probe` setup, etc.
 - `Scan` is primarily a container of the points that are to be beamformed.
 
-Check out the source code under `pyuff/objects/channel_data.py` in your favorite code editor to get a better understanding of the UFF object structure.
+Check out the source code under `pyuff_ustb/objects/channel_data.py` in your favorite code editor to get a better understanding of the UFF object structure.
 
 ## Lazy loading
 PyUFF strives to only load what you need in order to speed up the reading process. This is done by using lazy loaded properties. Lazy loaded values are only actually read from the file when they are used. This is contrary to _eager loading_ where _all_ values are automatically read from the file when the object is created. Another potential benefit from lazy loading is that it enables streaming of data from the file, which may speed up the reading process even further. Streaming of PyUFF data is not implemented yet.
@@ -64,10 +64,10 @@ del obj.data  # <- This deletes the data from the cache
 data = obj.data[...]  # <- The data is read again
 ```
 
-You can still eagerly load all values from the file by calling `pyuff.eager_load` on the object. Note that `eager_load` does not update the object `(but may read and cache properties)` but returns a new copy. Example:
+You can still eagerly load all values from the file by calling `pyuff_ustb.eager_load` on the object. Note that `eager_load` does not update the object `(but may read and cache properties)` but returns a new copy. Example:
 ```python
 obj = uff.read("channel_data")
 # Eagerly load all values (this usually takes a few seconds, depending on the file size)
-# pyuff.eager_load returns a copy of the object, leaving the original unchanged (though perhaps with cached properties).
-obj = pyuff.eager_load(obj)
+# pyuff_ustb.eager_load returns a copy of the object, leaving the original unchanged (though perhaps with cached properties).
+obj = pyuff_ustb.eager_load(obj)
 ```

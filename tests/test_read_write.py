@@ -5,9 +5,9 @@ import h5py
 import numpy as np
 import pytest
 
-import pyuff
-from pyuff.common import get_class_from_name
-from pyuff.readers import H5Reader, ReaderKeyError
+import pyuff_ustb as pyuff
+from pyuff_ustb.common import get_class_from_name
+from pyuff_ustb.readers import H5Reader, ReaderKeyError
 
 # Default download location when using vbeam.util.download.cached_download
 _data_folder = os.path.expanduser("~/.vbeam_downloads/ustb.no/datasets/")
