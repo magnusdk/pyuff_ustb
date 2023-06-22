@@ -1,5 +1,5 @@
-# PyUFF
-An implementation of USTB's ultrasound file format (UFF) in Python.
+# PyUFF ([USTB](https://www.ustb.no/))
+An implementation of [USTB's](https://www.ustb.no/) [ultrasound file format (UFF)](https://www.ustb.no/examples/uff/) in Python.
 
 _Note that this project only implements USTB's version of UFF, which is considered version `0.0.1`. Multiple versions of UFF exists, for example check out [uff-reader](https://github.com/waltsims/uff-reader). However, if you only planning to use USTB's version of UFF then you have come to the right place :)_
 
