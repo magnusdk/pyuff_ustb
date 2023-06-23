@@ -6,6 +6,16 @@ from pyuff_ustb.readers import LazyScalar
 
 
 class CurvilinearMatrixArray(MatrixArray):
+    """:class:`Uff` class to define a curvilinear matrix array probe geometry.
+
+    :class:`CurvilinearMatrixArray` defines a array of regularly space elements on an 
+    arc in the azimuth dimensions and linear in elevation direction. Optionally it can 
+    hold each element width and height, assuming the elements are rectangular.
+
+    Original authors:
+        Anders E. Vrålstad (anders.e.vralstad@ntnu.no)
+    """
+
     # Compulsory properties
     @compulsory_property
     def radius_x(self) -> float:

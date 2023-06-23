@@ -5,6 +5,11 @@ from pyuff_ustb.readers import LazyArray
 
 
 class Scan(Uff):
+    """:class:`Uff` class to define a scan.
+
+    :class:`Scan` contains the position of a collection of pixels. It is asuperclass for more easy-to-handle classes such as :class:`~pyuff_ustb.objects.scans.linear_scan.LinearScan` or :class:`~pyuff_ustb.objects.scans.sector_scan.SectorScan`.
+    """
+
     # Compulsory properties
     @compulsory_property
     def x(self) -> np.ndarray:

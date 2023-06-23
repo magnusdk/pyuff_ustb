@@ -10,6 +10,18 @@ if TYPE_CHECKING:
 
 
 class Probe(Uff):
+    """:class:`Uff` class to define arbitrary probe geometries.
+
+    :class:`Probe` contains the position and attitude of all elements of a probe. 
+    Optionally :class:`Probe` can hold each element width and height, assuming the 
+    elements were rectangular. Information is stored in a single matrix form called 
+    geometry, one row per element containing: 
+    ``[x, y, z, azimuth, elevation, width, height]``.
+
+    Original authors:
+        Alfonso Rodriguez-Molares (alfonsom@ntnu.no)
+    """
+
     # Compulsory properties
     @compulsory_property
     def geometry(self) -> np.ndarray:
@@ -24,10 +36,10 @@ class Probe(Uff):
         - phi [radians]
         - width [meters]
         - height [meters]
-        
+
 
         Returns:
-            np.ndarray: An array with attitude of rectangular elements with shape 
+            np.ndarray: An array with attitude of rectangular elements with shape
             ``(7, n_elements)``.
         """
         return LazyArray(self._reader["geometry"])

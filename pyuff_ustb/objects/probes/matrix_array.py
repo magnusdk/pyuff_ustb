@@ -4,6 +4,14 @@ from pyuff_ustb.readers import LazyScalar
 
 
 class MatrixArray(Probe):
+    """:class:`Uff` class to define a matrix array probe geometry.
+    
+    :class:`MatrixArray` contains defines an 2D array of elements with regularly spaced 
+    in both dimensions.
+    
+    Original authors:
+        Alfonso Rodriguez-Molares (alfonsom@ntnu.no)
+    """
     # Compulsory properties
     @compulsory_property
     def pitch_x(self) -> float:

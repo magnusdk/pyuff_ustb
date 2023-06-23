@@ -18,6 +18,16 @@ if TYPE_CHECKING:
 
 
 class ChannelData(Uff):
+    """:class:`Uff` class to hold channel data.
+
+    :class:`ChannelData` contains raw ultrasound data as acquired from an ultrasound
+    scanner. Data is stored in the property :attr:`data` with dimensions:
+    ``[time-dimension x channel-dimension x wave-dimension x frame-dimension]``.
+
+    Original authors:
+        Alfonso Rodriguez-Molares <alfonso.r.molares@ntnu.no>
+    """
+
     # Compulsory properties
     @compulsory_property
     def sampling_frequency(self) -> float:

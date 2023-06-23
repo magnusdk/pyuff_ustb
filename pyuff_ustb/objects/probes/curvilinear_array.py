@@ -1,11 +1,25 @@
 import numpy as np
 
 from pyuff_ustb.objects.probes.probe import Probe
-from pyuff_ustb.objects.uff import compulsory_property, dependent_property, optional_property
+from pyuff_ustb.objects.uff import (
+    compulsory_property,
+    dependent_property,
+    optional_property,
+)
 from pyuff_ustb.readers import LazyScalar
 
 
 class CurvilinearArray(Probe):
+    """:class:`Uff` class to define a curvilinear array probe geometry.
+
+    :class:`CurvilinearArray` defines a array of regularly space elements on an arc in 
+    the azimuth dimensions. Optionally it can hold each element width and height, 
+    assuming the elements are rectangular.
+        
+    Original authors:
+        Alfonso Rodriguez-Molares (alfonsom@ntnu.no)
+    """
+
     # Compulsory properties
     @compulsory_property
     def N(self) -> int:

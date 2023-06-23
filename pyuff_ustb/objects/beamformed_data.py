@@ -19,6 +19,17 @@ if TYPE_CHECKING:
 
 
 class BeamformedData(Uff):
+    """:class:`Uff` class to hold beamformed data.
+
+    :class:`BeamformedData` contains beamformed ultrasound data, i.e. a spacial map.
+    Data is stored in the property :attr:`data` with dimensions:
+    ``[pixel-dimension x channel-dimension x wave-dimension x frame-dimension]``.
+
+    Original authors:
+        * Alfonso Rodriguez-Molares (alfonso.r.molares@ntnu.no)
+        * Ole Marius Hoel Rindal (olemarius@olemarius.net)
+    """
+
     # Compulsory properties
     @compulsory_property
     def scan(self) -> "Scan":

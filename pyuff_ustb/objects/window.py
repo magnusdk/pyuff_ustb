@@ -1,19 +1,22 @@
-"""An enumeration of window types.
-
-Tests:
->>> Window.boxcar == Window.rectangular == Window.flat
-True
->>> Window(0)
-<Window.none: 0>
->>> Window(8)
-<Window.scanline: 8>
-"""
-
-
 from enum import Enum
 
 
 class Window(Enum):
+    """Enumeration for window types.
+
+    :attr:`Window.boxcar`, :attr:`Window.rectangular` and :attr:`Window.flat` are
+    semantically equivalent, even though they are different enumerations:
+
+    >>> Window.boxcar == Window.rectangular == Window.flat
+    True
+
+    See also:
+        :class:`~pyuff_ustb.objects.apodization.Apodization`
+
+    Original authors:
+        Alfonso Rodriguez-Molares (alfonso.r.molares@ntnu.no)
+    """
+
     none = 0
     boxcar = 1
     rectangular = 1

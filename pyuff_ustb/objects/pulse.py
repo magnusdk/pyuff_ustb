@@ -5,6 +5,12 @@ from pyuff_ustb.readers import LazyArray, LazyScalar
 
 
 class Pulse(Uff):
+    """:class:`Uff` class for a pulse definition.
+
+    Original authors:
+        Alfonso Rodriguez-Molares <alfonso.r.molares@ntnu.no>
+    """
+
     # Compulsory properties
     @compulsory_property
     def center_frequency(self) -> float:

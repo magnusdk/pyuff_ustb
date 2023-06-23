@@ -11,6 +11,19 @@ if TYPE_CHECKING:
 
 
 class SectorScan(Scan):
+    """:class:`Uff` class to define a sector scan.
+    
+    :class:`SectorScan` contains the position of the azimuth and depth axis from an 
+    origin. The origin may be a single point or a list of points with the same length 
+    as the ``azimuth_axis``. In the case of multiple origins, each origin represents the 
+    apex of a single azimuth direction/column of the scan.
+    
+    Original authors:
+        * Alfonso Rodriguez-Molares <alfonso.r.molares@ntnu.no>
+        * Anders E. Vrålstad <anders.e.vralstad@ntnu.no>
+        * Stefano Fiorentini <stefano.fiorentini@ntnu.no>
+    """
+
     # Compulsory properties
     @compulsory_property
     def azimuth_axis(self) -> np.ndarray:

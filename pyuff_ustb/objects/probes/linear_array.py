@@ -4,6 +4,15 @@ from pyuff_ustb.readers import LazyScalar
 
 
 class LinearArray(Probe):
+    """:class:`Uff` class to define a linear array probe geometry.
+    
+    :class:`LinearArray` defines an array of elements regularly place along a line. 
+    Optionally :class:`LinearArray` specifies element width and heightassuming the they 
+    are rectangular.
+
+    Original authors:
+        Alfonso Rodriguez-Molares (alfonsom@ntnu.no)
+    """
     # Compulsory properties
     @compulsory_property
     def N(self) -> int:

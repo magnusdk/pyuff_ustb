@@ -19,6 +19,16 @@ if TYPE_CHECKING:
 
 
 class Apodization(Uff):
+    """:class:`Uff` class to hold apodization data.
+
+    :class:`Apodization` contains data to define transmit, receive & synthetic beams.
+    Different parameters are needed depending on the use.
+
+    Original authors:
+        * Alfonso Rodriguez-Molares <alfonso.r.molares@ntnu.no>
+        * Stefano Fiorentini <stefano.fiorentini@ntnu.no>
+    """
+
     # Compulsory properties
     @compulsory_property
     def probe(self) -> "Probe":

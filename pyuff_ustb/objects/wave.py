@@ -18,6 +18,28 @@ if TYPE_CHECKING:
 
 
 class Wave(Uff):
+    """:class:`Uff` class that describes a transmitted wave.
+
+    :class:`Wave` contains information to describe a wave: ``planar``, ``spherical``, or ``photoacoustic``, and the apodization used to produce it.
+
+    :attr:`wavefront` defines the type of wave produced: :attr:`Wavefront.plane`, :attr:`Wavefront.spherical`, or :attr:`Wavefront.photoacoustic`.
+
+    :attr:`source` defines the wave attitude. If :attr:`wavefront` is :attr:`Wavefront.spherical` then :attr:`source` defines the point in space from which the wave originated. If :attr:`source` is behind the plane ``z=0`` then the spherical wave will be diverging. If :attr:`source` is in front of the plane ``z=0`` the the spherical wave will be converging. If the :attr:`wavefront` is :attr:`Wavefront.plane` then :attr:`source` defines the orientation through the azimuth and elevation angles, i.e. :attr:`source.distance` becomes meaningless. If the :attr:`wavefront` is :attr:`Wavefront.photoacoustic` then :attr:`source` is ignored.
+
+    :attr:`Apodization` is a :class:`~pyuff_ustb.objects.apodization.Apodization` class used to compute the apodization values that generate the :class:`Wave`.
+
+    :attr:`delay` defines the time interval between the reference time ``t0`` and the start of acquisition for this particular wave. We refer to reference time, or time zero, as the moment the wave passes through the origin of coordinates ``(0, 0, 0)``.
+
+    See also:
+        :class:`~pyuff_ustb.objects.wavefront.Wavefront`
+        :class:`~pyuff_ustb.objects.apodization.Apodization`
+
+    Original authors:
+        * Alfonso Rodriguez-Molares <alfonso.r.molares@ntnu.no>
+        * Ole Marius Hoel Rindal <olemarius@olemarius.net>
+        * Anders E. Vrålstad <anders.e.vralstad@ntnu.no>
+    """
+
     # Compulsory properties
     @compulsory_property
     def wavefront(self) -> "Wavefront":
@@ -52,6 +74,7 @@ class Wave(Uff):
     # Optional properties
     @optional_property
     def probe(self) -> "Probe":
+        "PROBE class."
         return util.read_probe(self._reader["probe"])
 
     @optional_property

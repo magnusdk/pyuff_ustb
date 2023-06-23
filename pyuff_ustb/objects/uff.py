@@ -43,6 +43,12 @@ class dependent_property(property):
 
 
 class Uff:
+    """The base class of all UFF objects.
+
+    Original authors:
+        Alfonso Rodriguez-Molares <alfonso.r.molares@ntnu.no>
+    """
+
     _reader: Reader
 
     def __init__(self, _reader: Optional[Union[Reader, str]] = None, **kwargs):
@@ -121,19 +127,19 @@ class Uff:
         """Write the Uff to a file.
 
         Args:
-            filepath (Union[str, h5py.File]): The filepath (or ``h5py.File``) to write 
+            filepath (Union[str, h5py.File]): The filepath (or ``h5py.File``) to write
                 to.
-            location (Union[str, Tuple[str, ...], List[str]]): The location in the h5 
-                file to write to. Can be a tuple/list of strings representing a path 
+            location (Union[str, Tuple[str, ...], List[str]]): The location in the h5
+                file to write to. Can be a tuple/list of strings representing a path
                 into the h5 file, or a string with the path separated by slashes.
-            overwrite (bool): Whether to overwrite the location if it already exists. 
-                If the location already exists and ``overwrite=False``, a 
+            overwrite (bool): Whether to overwrite the location if it already exists.
+                If the location already exists and ``overwrite=False``, a
                 ``ValueError`` is raised. ``overwrite=False`` by default.
-            ignore_missing_compulsory_fields (bool): Whether to ignore missing 
-                compulsory fields. If a compulsory field is not set then usually a 
-                ``ValueError`` is raised. Setting 
-                ``ignore_missing_compulsory_fields=True`` will ignore this error and 
-                write the object anyway. ``ignore_missing_compulsory_fields=False`` by 
+            ignore_missing_compulsory_fields (bool): Whether to ignore missing
+                compulsory fields. If a compulsory field is not set then usually a
+                ``ValueError`` is raised. Setting
+                ``ignore_missing_compulsory_fields=True`` will ignore this error and
+                write the object anyway. ``ignore_missing_compulsory_fields=False`` by
                 default.
 
         Examples:
@@ -158,19 +164,19 @@ class Uff:
 
             >>> point.write("my_point.uff", "sub_directory/point")
 
-            Compulsory fields may not be None when writing an object to an UFF file (unless 
+            Compulsory fields may not be None when writing an object to an UFF file (unless
             ``ignore_missing_compulsory_fields=True``).
 
             >>> point.distance = None
             >>> point.write("my_point.uff", "point2")
             Traceback (most recent call last):
                 ...
-            ValueError: The compulsory field 'distance' is set to None. Compulsory fields 
-            may not be None when writing an object to an UFF file. To ignore this error and write 
+            ValueError: The compulsory field 'distance' is set to None. Compulsory fields
+            may not be None when writing an object to an UFF file. To ignore this error and write
             the object anyway, set ignore_missing_compulsory_fields=True.
 
-            Note that even though the previous step failed, the file was still partially 
-            written to (we don't rollback changes when writing fails), so we will have to 
+            Note that even though the previous step failed, the file was still partially
+            written to (we don't rollback changes when writing fails), so we will have to
             pass ``overwrite=True`` to write the object again.
 
             >>> point.write(
@@ -197,8 +203,8 @@ class Uff:
 
     def copy(self) -> "Uff":
         """Return a (deep) copy of the Uff object.
-        
-        In addition to the ``_reader``, all compulsory and optional fields are copied 
+
+        In addition to the ``_reader``, all compulsory and optional fields are copied
         (deeply) *iff* they are loaded/cached. This means that if a field has not been
         read from the file, it will not be copied. This is to avoid unintended eager
         loading of data.
@@ -212,7 +218,7 @@ class Uff:
 
     def __deepcopy__(self, memo):
         """Makes :class:`Uff` objects compatible with the ``copy`` module.
-        
+
         The ``copy`` module is part of the standard Python library."""
         kwargs = {}
         for name in self._get_fields(skip_dependent_properties=True):
@@ -363,7 +369,7 @@ def write_object(
     ignore_missing_compulsory_fields: bool = False,
 ):
     """Write an object to a HDF5 file.
-    
+
     See :meth:`Uff.write` for more details."""
     from pyuff_ustb.common import get_name_from_class
 

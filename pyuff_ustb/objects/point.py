@@ -5,6 +5,16 @@ from pyuff_ustb.readers import LazyScalar
 
 
 class Point(Uff):
+    """:class:`Uff` class to define a point location.
+
+    :class:`Point` contains the position of a point in a tridimensional space. It
+    express that location in spherical coordinates which allows to place points at
+    infinity but in a given direction.
+
+    Original authors:
+        Alfonso Rodriguez-Molares (alfonso.r.molares@ntnu.no)
+    """
+
     # Compulsory properties
     @compulsory_property
     def distance(self) -> float:

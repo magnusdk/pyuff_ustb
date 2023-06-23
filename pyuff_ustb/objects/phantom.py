@@ -5,6 +5,12 @@ from pyuff_ustb.readers import LazyArray, LazyScalar
 
 
 class Phantom(Uff):
+    """:class:`Uff` class for a phantom definition.
+
+    Original authors:
+        Alfonso Rodriguez-Molares <alfonso.r.molares@ntnu.no>
+    """
+
     # Compulsory properties
     @compulsory_property
     def points(self) -> np.ndarray:

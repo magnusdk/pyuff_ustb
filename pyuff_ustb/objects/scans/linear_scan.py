@@ -6,6 +6,16 @@ from pyuff_ustb.readers import LazyArray
 
 
 class LinearScan(Scan):
+    """:class:`Uff` class to define a linear scan.
+
+    Original authors:
+        Alfonso Rodriguez-Molares (alfonso.r.molares@ntnu.no)
+
+    See also:
+        :class:`~pyuff_ustb.objects.scans.LinearScanRotated`
+        :class:`~pyuff_ustb.objects.scans.Linear3DScan`
+    """
+
     # Compulsory properties
     @compulsory_property
     def x_axis(self) -> np.ndarray:

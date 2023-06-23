@@ -4,6 +4,11 @@ from pyuff_ustb.readers import LazyArray, LazyScalar
 
 
 class Linear3DScan(Scan):
+    """:class:`Uff` class to define a linear scan in 3 dimensions.
+    
+    Original authors:
+        Alfonso Rodriguez-Molares (alfonso.r.molares@ntnu.no)
+    """
     # Compulsory properties
     @compulsory_property
     def radial_axis(self) -> float:

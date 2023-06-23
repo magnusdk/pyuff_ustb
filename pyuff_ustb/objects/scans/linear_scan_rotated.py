@@ -6,6 +6,7 @@ from pyuff_ustb.readers import LazyArray, LazyScalar
 
 
 class LinearScanRotated(Scan):
+    """:class:`Uff` class to define a rotated linear scan."""
     # Compulsory properties
     @compulsory_property
     def x_axis(self) -> np.ndarray:
