@@ -6,7 +6,7 @@ _Note that this project only implements USTB's version of UFF, which is consider
 ## Installing
 Run the following command in your Python virtual environment:
 ```bash
-pip install git+https://github.com/magnusdk/pyuff_ustb.git
+python -m pip install pyuff-ustb
 ```
 To verify that the installation was successful, run the following command:
 ```bash
