@@ -14,7 +14,7 @@ from pyuff_ustb.readers.lazy_arrays.lazy_operations import (
 )
 
 
-@dataclass
+@dataclass(frozen=True)
 class LazyArray:
     _reader: Reader
     _lazy_operations: Sequence[LazyOperation] = ()
@@ -46,7 +46,7 @@ class LazyArray:
 
     @property
     def T(self):
-        return LazyArray(self._reader, self._lazy_operations + (LazyTranspose(),))
+        return LazyArray(self._reader, (*self._lazy_operations, LazyTranspose()))
 
     @property
     def shape(self) -> Tuple[int, ...]:
@@ -135,4 +135,4 @@ class LazyScalar(LazyArray):
             return ()
 
         lazy_squeeze = LazyOperation(np.squeeze, transform_shape=transform_shape)
-        super().__init__(reader, tuple([lazy_squeeze, *lazy_operations]))
+        super().__init__(reader, (lazy_squeeze, *lazy_operations))
