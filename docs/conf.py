@@ -23,10 +23,11 @@ release = "2.0.0"
 
 
 extensions = [
-    "sphinx.ext.autodoc",
-    "sphinx.ext.napoleon",
-    "sphinx.ext.autosummary",
+    "sphinx.ext.autodoc",  # Generates documentation from docstrings
+    "sphinx.ext.napoleon",  # Adds support for NumPy and Google style docstrings
+    "sphinx.ext.autosummary",  # Automatically generates documentation for modules
     "sphinx.ext.viewcode",
+    "sphinx_copybutton",  # Adds copy-button to code-blocks
 ]
 
 autodoc_member_order = "bysource"
@@ -44,4 +45,11 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 # html_theme = "alabaster"
 html_theme = "sphinx_book_theme"
+html_theme_options = {
+    "show_toc_level": 2,
+    "repository_url": "https://github.com/magnusdk/pyuff_ustb",
+    "use_repository_button": True,  # add a "link to repository" button
+}
+html_logo = '_static/pyuff_ustb_logo.png'  # Adds logo at the top of sidebar
+html_favicon = '_static/favicon-64x64.png'  # Adds favicon (shown in browser tab)
 html_static_path = ["_static"]
