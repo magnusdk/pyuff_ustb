@@ -1,6 +1,7 @@
+import copy
 from enum import Enum
 from functools import cached_property
-from typing import Any, List, Optional, Sequence, Tuple, TypeVar, Union, Generic
+from typing import Any, Generic, List, Optional, Sequence, Tuple, TypeVar, Union
 
 import h5py
 import numpy as np
@@ -16,7 +17,7 @@ TUff = TypeVar("TUff", bound="Uff")
 T = TypeVar("T")  # A generic type
 
 
-class compulsory_property( cached_property, Generic[T]):
+class compulsory_property(cached_property, Generic[T]):
     "Properties needed in order to write an UFF file."
 
     def __get__(self, instance, owner=None) -> T:
@@ -156,7 +157,32 @@ class Uff:
             )
 
     def copy(self) -> "Uff":
-        return deepcopy(self)
+        """Return a (deep) copy of the Uff object.
+        
+        In addition to the _reader, all compulsory and optional fields are copied 
+        (deeply) *iff* they are loaded/cached. This means that if a field has not been
+        read from the file, it will not be copied. This is to avoid unintended eager
+        loading of data.
+
+        See :meth:`__deepcopy__` for implementation details.
+
+        Returns:
+            Uff: A deep copy of this object.
+        """
+        return copy.deepcopy(self)
+
+    def __deepcopy__(self, memo):
+        """Makes :class:`Uff` objects compatible with the ``copy`` module.
+        
+        The ``copy`` module is part of the standard Python library."""
+        kwargs = {}
+        for name in self._get_fields(skip_dependent_properties=True):
+            # Only add the field if it is loaded/cached. When using cached_property,
+            # the field will be added to the object's __dict__ the first time it is
+            # accessed.
+            if name in self.__dict__:
+                kwargs[name] = copy.deepcopy(getattr(self, name), memo)
+        return self.__class__(self._reader, **kwargs)
 
     def _preprocess_write(self, name: str, value):
         return value
@@ -224,12 +250,12 @@ class Uff:
 def eager_load(obj: T) -> T:
     """Eagerly and recursively load all the lazy fields in an object.
 
-    ``pyuff_ustb`` is lazily loaded by default, meaning that most fields are not read 
-    from file until they are needed. This function will recursively load all such 
-    fields, ensuring that all :class:`~pyuff_ustb.readers.lazy_arrays.LazyArrays` and 
+    ``pyuff_ustb`` is lazily loaded by default, meaning that most fields are not read
+    from file until they are needed. This function will recursively load all such
+    fields, ensuring that all :class:`~pyuff_ustb.readers.lazy_arrays.LazyArrays` and
     :class:`.LazyScalars` are converted to Numpy arrays.
-    
-    A new instance of the same type as the input object is returned, but with all its 
+
+    A new instance of the same type as the input object is returned, but with all its
     fields guaranteed to be loaded into memory.
 
     Args:
@@ -238,7 +264,7 @@ def eager_load(obj: T) -> T:
     Returns:
         T: A new object of the same type as the input object, with all its fields
             guaranteed to be loaded into memory.
-    """    
+    """
     if isinstance(obj, (LazyArray, LazyScalar)):
         return np.array(obj)
     elif isinstance(obj, Uff):
@@ -250,22 +276,6 @@ def eager_load(obj: T) -> T:
         return [eager_load(o) for o in obj]
     elif isinstance(obj, dict):
         return {k: eager_load(v) for k, v in obj.items()}
-    else:
-        return obj
-    
-def deepcopy(obj: T) -> T:
-    # TODO: handle reader, etc...
-    if isinstance(obj, (LazyArray, LazyScalar)):
-        return np.array(obj)
-    elif isinstance(obj, Uff):
-        kwargs = {}
-        for name in obj._get_fields(skip_dependent_properties=True):
-            kwargs[name] = deepcopy(getattr(obj, name))
-        return obj.__class__(**kwargs)
-    elif isinstance(obj, (list, tuple)):
-        return [deepcopy(o) for o in obj]
-    elif isinstance(obj, dict):
-        return {k: deepcopy(v) for k, v in obj.items()}
     else:
         return obj
 
