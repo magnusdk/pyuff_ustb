@@ -120,32 +120,71 @@ class Uff:
     ):
         """Write the Uff to a file.
 
-        Parameters
-        ----------
-        filepath : Union[str, h5py.File]
-            The filepath to write to.
-        location : Union[str, Tuple[str, ...], List[str]]
-            The location in the h5 file to write to. Can be a tuple/list of strings
-            representing a path into the h5 file, or a string with the path separated
-            by slashes.
-        overwrite : bool, optional
-            Whether to overwrite the location if it already exists. If the location
-            already exists and overwrite=False, a ValueError is raised.
-        ignore_missing_compulsory_fields : bool, optional
-            Whether to ignore missing compulsory fields. If a compulsory field is not
-            set then usually a ValueError is raised. Setting
-            ignore_missing_compulsory_fields=True will ignore this error and write the
-            object anyway.
+        Args:
+            filepath (Union[str, h5py.File]): The filepath (or ``h5py.File``) to write 
+                to.
+            location (Union[str, Tuple[str, ...], List[str]]): The location in the h5 
+                file to write to. Can be a tuple/list of strings representing a path 
+                into the h5 file, or a string with the path separated by slashes.
+            overwrite (bool): Whether to overwrite the location if it already exists. 
+                If the location already exists and ``overwrite=False``, a 
+                ``ValueError`` is raised. ``overwrite=False`` by default.
+            ignore_missing_compulsory_fields (bool): Whether to ignore missing 
+                compulsory fields. If a compulsory field is not set then usually a 
+                ``ValueError`` is raised. Setting 
+                ``ignore_missing_compulsory_fields=True`` will ignore this error and 
+                write the object anyway. ``ignore_missing_compulsory_fields=False`` by 
+                default.
 
-        Example:
-        Write channel data and a scan to a file:
-        >> channel_data.write("my_channel_data.uff", "channel_data")
-        >> scan.write("my_channel_data.uff", "scan")
+        Examples:
+            We can write an object to a file like this:
 
-        Writing multiple ChannelData objects to the same file (at nested locations):
-        >> channel_data1.write("our_channel_data.uff", "magnus/channel_data")
-        >> channel_data2.write("our_channel_data.uff", "anders/channel_data")
-        >> channel_data3.write("our_channel_data.uff", "ole_marius/channel_data")
+            >>> import pyuff_ustb as pyuff
+            >>> point = pyuff.Point(distance=0.0, azimuth=0.0, elevation=0.0)
+            >>> point.write("my_point.uff", "point")
+
+            If we try to write an object to the same location, we get an error:
+
+            >>> point.write("my_point.uff", "point")
+            Traceback (most recent call last):
+                ...
+            ValueError: Location 'point' already exists in the file 'my_point.uff'. Use overwrite=True to overwrite it.
+
+            We can choose to overwrite the location by passing ``overwrite=True``:
+
+            >>> point.write("my_point.uff", "point", overwrite=True)
+
+            We can also write the object to another arbitrary location if we want:
+
+            >>> point.write("my_point.uff", "sub_directory/point")
+
+            Compulsory fields may not be None when writing an object to an UFF file (unless 
+            ``ignore_missing_compulsory_fields=True``).
+
+            >>> point.distance = None
+            >>> point.write("my_point.uff", "point2")
+            Traceback (most recent call last):
+                ...
+            ValueError: The compulsory field 'distance' is set to None. Compulsory fields 
+            may not be None when writing an object to an UFF file. To ignore this error and write 
+            the object anyway, set ignore_missing_compulsory_fields=True.
+
+            Note that even though the previous step failed, the file was still partially 
+            written to (we don't rollback changes when writing fails), so we will have to 
+            pass ``overwrite=True`` to write the object again.
+
+            >>> point.write(
+            ...     "my_point.uff",
+            ...     "point2",
+            ...     overwrite=True,
+            ...     ignore_missing_compulsory_fields=True,
+            ... )
+
+            After running these steps, the file will contain the following fields:
+
+            >>> uff = pyuff.Uff("my_point.uff")
+            >>> uff
+            Uff(point=Point(<...>), point2=Point(<...>), sub_directory=<...>)
         """
         with h5py.File(filepath, "a") as hf:
             write_object(
@@ -159,12 +198,12 @@ class Uff:
     def copy(self) -> "Uff":
         """Return a (deep) copy of the Uff object.
         
-        In addition to the _reader, all compulsory and optional fields are copied 
+        In addition to the ``_reader``, all compulsory and optional fields are copied 
         (deeply) *iff* they are loaded/cached. This means that if a field has not been
         read from the file, it will not be copied. This is to avoid unintended eager
         loading of data.
 
-        See :meth:`__deepcopy__` for implementation details.
+        See :meth:`Uff.__deepcopy__` for implementation details.
 
         Returns:
             Uff: A deep copy of this object.
@@ -211,7 +250,10 @@ class Uff:
         for field in self._get_fields(skip_dependent_properties=True):
             try:
                 if type(self) is Uff:
-                    value = self.read(field)
+                    if "class" in self._reader[field].attrs:
+                        value = self.read(field)
+                    else:
+                        value = "<...>"
                 else:
                     value = getattr(self, field)
                 if value is not None:
@@ -284,7 +326,7 @@ def _present_field_value(value):
     if isinstance(value, np.ndarray):
         return f"<Array shape={value.shape} dtype={value.dtype}>"
     elif isinstance(value, Uff):
-        return f"{value.__class__.__name__}(...)"
+        return f"{value.__class__.__name__}(<...>)"
     elif isinstance(value, (list, tuple)):
         open_bracket = "[" if isinstance(value, list) else "("
         close_bracket = "]" if isinstance(value, list) else ")"
@@ -293,6 +335,8 @@ def _present_field_value(value):
 items in total){close_bracket}>"
         else:
             return f"{open_bracket}{_present_field_value(value[0])}{close_bracket}"
+    elif isinstance(value, str):
+        return value
     else:
         return repr(value)
 
@@ -318,6 +362,9 @@ def write_object(
     overwrite: bool = False,
     ignore_missing_compulsory_fields: bool = False,
 ):
+    """Write an object to a HDF5 file.
+    
+    See :meth:`Uff.write` for more details."""
     from pyuff_ustb.common import get_name_from_class
 
     if isinstance(location, str):
@@ -330,7 +377,7 @@ def write_object(
             del hf[location_str]
         else:
             raise ValueError(
-                f"Location {location} already exists in file {hf.filename}. Use \
+                f"Location '{location_str}' already exists in the file '{hf.filename}'. Use \
 overwrite=True to overwrite it."
             )
 
@@ -356,8 +403,7 @@ overwrite=True to overwrite it."
                 raise ValueError(
                     f"""The compulsory field '{name}' is set to None. Compulsory fields 
 may not be None when writing an object to an UFF file. To ignore this error and write 
-the object anyway, set ignore_missing_compulsory_fields=True.
-"""
+the object anyway, set ignore_missing_compulsory_fields=True."""
                 )
             value = obj._preprocess_write(name, value)
             write_object(
@@ -466,5 +512,7 @@ repository."
 
 if __name__ == "__main__":
     import doctest
+    import os
 
     doctest.testmod()
+    os.system("rm -rf my_point.uff")
