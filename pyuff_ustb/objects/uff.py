@@ -1,7 +1,17 @@
 import copy
 from enum import Enum
 from functools import cached_property
-from typing import Any, Generic, List, Optional, Sequence, Tuple, TypeVar, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Generic,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    TypeVar,
+    Union,
+)
 
 import h5py
 import numpy as np
@@ -40,6 +50,13 @@ class optional_property(cached_property):
 class dependent_property(property):
     """Properties that are dependent on other properties and are not read from or
     written to an UFF file."""
+
+
+if TYPE_CHECKING:
+    # Make sure properties are treated as properties when type checking
+    compulsory_property = property
+    optional_property = property
+    dependent_property = property
 
 
 class Uff:

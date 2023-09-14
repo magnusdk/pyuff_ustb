@@ -16,6 +16,11 @@ if TYPE_CHECKING:
     from pyuff_ustb.objects.pulse import Pulse
     from pyuff_ustb.objects.wave import Wave
 
+    # Make sure properties are treated as properties when type checking
+    compulsory_property = property
+    optional_property = property
+    dependent_property = property
+
 
 class ChannelData(Uff):
     """:class:`Uff` class to hold channel data.

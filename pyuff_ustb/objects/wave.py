@@ -16,6 +16,11 @@ if TYPE_CHECKING:
     from pyuff_ustb.objects.probes.probe import Probe
     from pyuff_ustb.objects.wavefront import Wavefront
 
+    # Make sure properties are treated as properties when type checking
+    compulsory_property = property
+    optional_property = property
+    dependent_property = property
+
 
 class Wave(Uff):
     """:class:`Uff` class that describes a transmitted wave.

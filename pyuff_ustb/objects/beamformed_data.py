@@ -17,6 +17,11 @@ if TYPE_CHECKING:
     from pyuff_ustb.objects.scans.scan import Scan
     from pyuff_ustb.objects.wave import Wave
 
+    # Make sure properties are treated as properties when type checking
+    compulsory_property = property
+    optional_property = property
+    dependent_property = property
+
 
 class BeamformedData(Uff):
     """:class:`Uff` class to hold beamformed data.

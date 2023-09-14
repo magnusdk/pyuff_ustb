@@ -17,6 +17,11 @@ if TYPE_CHECKING:
     from pyuff_ustb.objects.wave import Wave
     from pyuff_ustb.objects.window import Window
 
+    # Make sure properties are treated as properties when type checking
+    compulsory_property = property
+    optional_property = property
+    dependent_property = property
+
 
 class Apodization(Uff):
     """:class:`Uff` class to hold apodization data.
