@@ -67,7 +67,13 @@ class Wave(Uff):
         "POINT class"
         from pyuff_ustb.objects.point import Point
 
-        return Point(self._reader["origin"])
+        if "origin" in self._reader:
+            return Point(self._reader["origin"])
+        return Point(
+            distance=0.0,
+            azimuth=0.0,
+            elevation=0.0,
+        )
 
     @compulsory_property
     def apodization(self) -> "Apodization":
@@ -108,14 +114,37 @@ class Wave(Uff):
         return self.probe.N_elements
 
     @dependent_property
-    def delay_values(self):
+    def delay_values(self) -> np.ndarray:
         "Delay [s]"
-        raise NotImplementedError(
-            "Delay value computation is outside the scope of pyuff_ustb"
-        )
+        if self.probe is None:
+            raise ValueError("Probe must be defined to compute delay values")
+        if self.sound_speed is None:
+            raise ValueError("Sound speed must be defined to compute delay values")
+
+        source_origin_dist = np.sqrt(np.sum(self.source.xyz**2))
+        if np.isinf(source_origin_dist):
+            dst = np.sqrt(
+                (self.probe.x - self.source.x) ** 2
+                + (self.probe.y - self.source.y) ** 2
+                + (self.probe.z - self.source.z) ** 2
+            )
+            if self.source.z < 0:
+                return dst / self.sound_speed - np.abs(
+                    source_origin_dist / self.sound_speed
+                )
+            else:
+                return source_origin_dist / self.sound_speed - dst / self.sound_speed
+        else:
+            return (self.probe.x - self.origin.x) * np.sin(
+                self.source.azimuth
+            ) / self.sound_speed + (self.probe.y - self.origin.y) * np.sin(
+                self.source.elevation
+            ) / self.sound_speed
+
+        return value
 
     @dependent_property
-    def apodization_values(self):
+    def apodization_values(self) -> np.ndarray:
         "Apodization [unitless]"
         raise NotImplementedError(
             "Apodization computation is outside the scope of pyuff_ustb"
