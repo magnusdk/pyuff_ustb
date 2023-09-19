@@ -16,7 +16,7 @@ description = "An implementation of USTB's ultrasound file format (UFF) in Pytho
 name = "pyuff_ustb"
 readme = "README.md"
 requires-python = ">=3.9"
-version = "2.0.3"
+version = "2.0.4"
 
 [project.urls]
 "Bug Tracker" = "https://github.com/magnusdk/pyuff_ustb/issues"
