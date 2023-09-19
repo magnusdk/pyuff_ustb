@@ -52,3 +52,29 @@ class MatrixArray(Probe):
     def element_height(self) -> float:
         "Height of the elements in the elevation direction [m]"
         return LazyScalar(self._reader["element_height"])
+
+    # Override some compulsory properties of Probe
+    @dependent_property
+    def geometry(self) -> np.ndarray:
+        element_width = self.pitch_x
+        element_height = self.pitch_y
+
+        # Compute element center location
+        x0 = np.arange(0, self.N_x) * self.pitch_x
+        x0 = x0 - np.mean(x0)
+        y0 = np.arange(0, self.N_y) * self.pitch_y
+        y0 = y0 - np.mean(y0)
+
+        X, Y = np.meshgrid(x0, y0)
+
+        return np.array(
+            [
+                X,
+                Y,
+                np.zeros(self.N_x * self.N_y),
+                np.zeros(self.N_x * self.N_y),
+                np.zeros(self.N_x * self.N_y),
+                element_width * np.ones(self.N_x * self.N_y),
+                element_height * np.ones(self.N_x * self.N_y),
+            ]
+        )

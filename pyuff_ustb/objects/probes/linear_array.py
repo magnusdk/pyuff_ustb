@@ -49,3 +49,31 @@ class LinearArray(Probe):
     def element_height(self) -> float:
         "Height of the elements in the elevation direction [m]"
         return LazyScalar(self._reader["element_height"])
+
+    # Override some compulsory properties of Probe
+    @dependent_property
+    def geometry(self) -> np.ndarray:
+        element_width = (
+            self.element_width if self.element_width is not None else self.pitch
+        )
+        element_height = (
+            self.element_height
+            if self.element_height is not None
+            else 10 * element_width
+        )
+
+        # Compute element abcissa
+        x0 = np.arange(1, self.N + 1) * self.pitch
+        x0 = x0 - np.mean(x0)
+
+        return np.array(
+            [
+                x0,
+                np.zeros(self.N),
+                np.zeros(self.N),
+                np.zeros(self.N),
+                np.zeros(self.N),
+                element_width * np.ones(self.N),
+                element_height * np.ones(self.N),
+            ]
+        )
