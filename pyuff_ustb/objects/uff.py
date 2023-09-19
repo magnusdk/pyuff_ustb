@@ -524,6 +524,12 @@ the object anyway, set ignore_missing_compulsory_fields=True."""
     elif obj is None:
         return  # Do nothing
 
+    elif hasattr(obj, "__array__"):
+        obj = np.array(obj)
+        return write_object(
+            hf, obj, location, overwrite, ignore_missing_compulsory_fields
+        )
+
     else:
         name = location[-1]
         raise TypeError(
