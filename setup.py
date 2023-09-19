@@ -3,7 +3,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="pyuff_ustb",
-    version="2.0.5",
+    version="2.0.6",
     author_email="magnus.kvalevag@ntnu.no",
     packages=find_packages(),
     install_requires=["numpy", "h5py"],

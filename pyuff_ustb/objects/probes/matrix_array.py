@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING
 
+import numpy as np
+
 from pyuff_ustb.objects.probes.probe import Probe
 from pyuff_ustb.objects.uff import (
     compulsory_property,
