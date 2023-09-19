@@ -1,15 +1,23 @@
+from typing import TYPE_CHECKING
+
 import numpy as np
 
 from pyuff_ustb.objects.probes.matrix_array import MatrixArray
 from pyuff_ustb.objects.uff import compulsory_property, dependent_property
 from pyuff_ustb.readers import LazyScalar
 
+if TYPE_CHECKING:
+    # Make sure properties are treated as properties when type checking
+    compulsory_property = property
+    optional_property = property
+    dependent_property = property
+
 
 class CurvilinearMatrixArray(MatrixArray):
     """:class:`Uff` class to define a curvilinear matrix array probe geometry.
 
-    :class:`CurvilinearMatrixArray` defines a array of regularly space elements on an 
-    arc in the azimuth dimensions and linear in elevation direction. Optionally it can 
+    :class:`CurvilinearMatrixArray` defines a array of regularly space elements on an
+    arc in the azimuth dimensions and linear in elevation direction. Optionally it can
     hold each element width and height, assuming the elements are rectangular.
 
     Original authors:

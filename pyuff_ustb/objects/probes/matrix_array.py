@@ -1,17 +1,26 @@
+from typing import TYPE_CHECKING
+
 from pyuff_ustb.objects.probes.probe import Probe
 from pyuff_ustb.objects.uff import compulsory_property, optional_property
 from pyuff_ustb.readers import LazyScalar
 
+if TYPE_CHECKING:
+    # Make sure properties are treated as properties when type checking
+    compulsory_property = property
+    optional_property = property
+    dependent_property = property
+
 
 class MatrixArray(Probe):
     """:class:`Uff` class to define a matrix array probe geometry.
-    
-    :class:`MatrixArray` contains defines an 2D array of elements with regularly spaced 
+
+    :class:`MatrixArray` contains defines an 2D array of elements with regularly spaced
     in both dimensions.
-    
+
     Original authors:
         Alfonso Rodriguez-Molares (alfonsom@ntnu.no)
     """
+
     # Compulsory properties
     @compulsory_property
     def pitch_x(self) -> float:

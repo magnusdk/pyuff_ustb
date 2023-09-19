@@ -9,15 +9,20 @@ from pyuff_ustb.readers import LazyArray, util
 if TYPE_CHECKING:
     from pyuff_ustb.objects.point import Point
 
+    # Make sure properties are treated as properties when type checking
+    compulsory_property = property
+    optional_property = property
+    dependent_property = property
+
 
 class SectorScan(Scan):
     """:class:`Uff` class to define a sector scan.
-    
-    :class:`SectorScan` contains the position of the azimuth and depth axis from an 
-    origin. The origin may be a single point or a list of points with the same length 
-    as the ``azimuth_axis``. In the case of multiple origins, each origin represents the 
+
+    :class:`SectorScan` contains the position of the azimuth and depth axis from an
+    origin. The origin may be a single point or a list of points with the same length
+    as the ``azimuth_axis``. In the case of multiple origins, each origin represents the
     apex of a single azimuth direction/column of the scan.
-    
+
     Original authors:
         * Alfonso Rodriguez-Molares <alfonso.r.molares@ntnu.no>
         * Anders E. Vrålstad <anders.e.vralstad@ntnu.no>

@@ -1,8 +1,16 @@
+from typing import TYPE_CHECKING
+
 import numpy as np
 
 from pyuff_ustb.objects.scans.scan import Scan
 from pyuff_ustb.objects.uff import compulsory_property, dependent_property
 from pyuff_ustb.readers import LazyArray
+
+if TYPE_CHECKING:
+    # Make sure properties are treated as properties when type checking
+    compulsory_property = property
+    optional_property = property
+    dependent_property = property
 
 
 class LinearScan(Scan):

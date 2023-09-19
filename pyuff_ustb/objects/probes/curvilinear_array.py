@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 import numpy as np
 
 from pyuff_ustb.objects.probes.probe import Probe
@@ -8,14 +10,20 @@ from pyuff_ustb.objects.uff import (
 )
 from pyuff_ustb.readers import LazyScalar
 
+if TYPE_CHECKING:
+    # Make sure properties are treated as properties when type checking
+    compulsory_property = property
+    optional_property = property
+    dependent_property = property
+
 
 class CurvilinearArray(Probe):
     """:class:`Uff` class to define a curvilinear array probe geometry.
 
-    :class:`CurvilinearArray` defines a array of regularly space elements on an arc in 
-    the azimuth dimensions. Optionally it can hold each element width and height, 
+    :class:`CurvilinearArray` defines a array of regularly space elements on an arc in
+    the azimuth dimensions. Optionally it can hold each element width and height,
     assuming the elements are rectangular.
-        
+
     Original authors:
         Alfonso Rodriguez-Molares (alfonsom@ntnu.no)
     """
