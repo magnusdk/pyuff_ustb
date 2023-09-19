@@ -1,7 +1,11 @@
 from typing import TYPE_CHECKING
 
 from pyuff_ustb.objects.probes.probe import Probe
-from pyuff_ustb.objects.uff import compulsory_property, optional_property
+from pyuff_ustb.objects.uff import (
+    compulsory_property,
+    dependent_property,
+    optional_property,
+)
 from pyuff_ustb.readers import LazyScalar
 
 if TYPE_CHECKING:
