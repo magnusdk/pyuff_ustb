@@ -27,17 +27,23 @@ class Point(Uff):
     @compulsory_property
     def distance(self) -> float:
         "Distance from the point location to the origin of coordinates [m]"
-        return LazyScalar(self._reader["distance"])
+        if "distance" in self._reader:
+            return LazyScalar(self._reader["distance"])
+        return 0
 
     @compulsory_property
     def azimuth(self) -> float:
         "Angle from the point location to the plane YZ [rad]"
-        return LazyScalar(self._reader["azimuth"])
+        if "azimuth" in self._reader:
+            return LazyScalar(self._reader["azimuth"])
+        return 0
 
     @compulsory_property
     def elevation(self) -> float:
         "Angle from the point location to the plane XZ [rad]"
-        return LazyScalar(self._reader["elevation"])
+        if "elevation" in self._reader:
+            return LazyScalar(self._reader["elevation"])
+        return 0
 
     # Dependent properties
     @dependent_property
