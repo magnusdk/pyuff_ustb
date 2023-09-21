@@ -3,18 +3,13 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from pyuff_ustb.objects.probes.probe import Probe
-from pyuff_ustb.objects.uff import (
-    compulsory_property,
-    dependent_property,
-    optional_property,
-)
-from pyuff_ustb.readers import LazyScalar
+from pyuff_ustb.objects.uff import compulsory_property, optional_property
+from pyuff_ustb.readers import LazyArray, LazyScalar
 
 if TYPE_CHECKING:
     # Make sure properties are treated as properties when type checking
     compulsory_property = property
     optional_property = property
-    dependent_property = property
 
 
 class MatrixArray(Probe):
@@ -60,8 +55,13 @@ class MatrixArray(Probe):
         return LazyScalar(self._reader["element_height"])
 
     # Override some compulsory properties of Probe
-    @dependent_property
+    @compulsory_property
     def geometry(self) -> np.ndarray:
+        # Try to read geometry from the file first
+        if "geometry" in self._reader:
+            return LazyArray(self._reader["geometry"])
+
+        # If geometry is not set in the file, calculate it based on the fields.
         element_width = self.pitch_x
         element_height = self.pitch_y
         N_x, N_y = int(self.N_x), int(self.N_y)
