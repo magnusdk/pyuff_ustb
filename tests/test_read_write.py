@@ -7,6 +7,7 @@ import pytest
 
 import pyuff_ustb as pyuff
 from pyuff_ustb.common import get_class_from_name
+from pyuff_ustb.objects.uff import dependent_property
 from pyuff_ustb.readers import H5Reader, ReaderKeyError
 
 # Default download location when using vbeam.util.download.cached_download
@@ -122,22 +123,18 @@ def test_writing_point():
 
 
 def test_writing_missing_compulsory_fields():
-    point = pyuff.Point(
-        distance=0,
-        azimuth=0,
-        # elevation=0,  # <- leave out this compulsory field
-    )
+    wave = pyuff.Wave()
     with tempfile.NamedTemporaryFile(suffix=".uff") as file:
         with pytest.raises(ValueError):
             # Writing an object with missing compulsory fields should raise an error
-            point.write(file.name, "point")
+            wave.write(file.name, "wave")
 
     with tempfile.NamedTemporaryFile(suffix=".uff") as file:
         # With ignore_missing_compulsory_fields=True we write the object anyway
-        point.write(file.name, "point", ignore_missing_compulsory_fields=True)
+        wave.write(file.name, "point", ignore_missing_compulsory_fields=True)
         # Compare the results
         uff = pyuff.Uff(file.name)
-        assert uff.read("point") == point
+        assert uff.read("point") == wave
 
 
 def _compare_dicts(d1: dict, d2: dict):
@@ -169,6 +166,12 @@ def _compare_dicts(d1: dict, d2: dict):
     return True
 
 
+def _is_dependent_property(hf: h5py.Group, k: str):
+    cls = get_class_from_name(hf.attrs["class"])
+    attr = getattr(cls, k)
+    return isinstance(attr, dependent_property)
+
+
 def _h5_equals(r1: H5Reader, r2: H5Reader) -> bool:
     if len(r1.path) > 0:  # Ignore root attributes
         if not _compare_dicts(dict(r1.attrs), dict(r2.attrs)):
@@ -187,6 +190,9 @@ def _h5_equals(r1: H5Reader, r2: H5Reader) -> bool:
                         (k == "origo" and "origin" in r2)
                         or (k == "apex" and "origin" in r2)
                         or (k == "scan" and "focus" in r2)
+                        # Dependent properties does not need to match because we don't
+                        # write them.
+                        or _is_dependent_property(hf1, k)
                         or (
                             k in ["x", "y", "z"]
                             and issubclass(
@@ -217,6 +223,10 @@ def _h5_equals(r1: H5Reader, r2: H5Reader) -> bool:
                             pyuff.SectorScan,
                         ),
                     ):
+                        continue
+                    # Dependent properties does not need to match because we don't
+                    # write them.
+                    if _is_dependent_property(hf1, k):
                         continue
                     return False
         else:
