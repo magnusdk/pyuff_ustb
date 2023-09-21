@@ -38,4 +38,9 @@ class Scan(Uff):
     @dependent_property
     def xyz(self) -> np.ndarray:
         "Vector containing the [x, y, z] coordinates of each pixel in [m]"
-        return np.stack([self.x, self.y, self.z], axis=-1)
+        y = self.y
+        if y is None:
+            y = np.array(0.0)
+        if y.shape != self.x.shape and y.size == 1:
+            y = np.repeat(y, self.x.size)
+        return np.stack([self.x, y, self.z], axis=-1)

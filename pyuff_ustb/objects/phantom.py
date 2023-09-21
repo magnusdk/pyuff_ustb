@@ -69,6 +69,8 @@ class Phantom(Uff):
     @dependent_property
     def Gamma(self) -> np.ndarray:
         "Reflection coefficient [unitless]"
+        if self.points.ndim < 4:
+            raise ValueError("Gamma is not defined for this phantom")
         return self.points[:, 3]
 
     @dependent_property

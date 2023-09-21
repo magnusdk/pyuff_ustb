@@ -32,7 +32,7 @@ class LinearArray(Probe):
     @compulsory_property
     def N(self) -> int:
         "Number of elements"
-        return LazyScalar(self._reader["N"])
+        return LazyScalar(self._reader["N"], int)
 
     @compulsory_property
     def pitch(self) -> float:

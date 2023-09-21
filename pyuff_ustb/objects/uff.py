@@ -481,6 +481,10 @@ the object anyway, set ignore_missing_compulsory_fields=True."""
             dataset.attrs["imaginary"] = np.array([0])  # False
 
     elif isinstance(obj, (list, tuple)):
+        # Ignore empty sequences
+        if len(obj) == 0:
+            return
+        
         name = location[-1]
         first_obj = obj[0]
         assert all(

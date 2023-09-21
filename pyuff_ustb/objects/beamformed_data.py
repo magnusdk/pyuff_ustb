@@ -98,14 +98,20 @@ class BeamformedData(Uff):
     @dependent_property
     def N_channels(self) -> int:
         "Number of channels"
+        if self.data.ndim < 2:
+            return 1
         return self.data.shape[1]
 
     @dependent_property
     def N_waves(self) -> int:
         "Number of waves (transmit events)"
+        if self.data.ndim < 3:
+            return 1
         return self.data.shape[2]
 
     @dependent_property
     def N_frames(self) -> int:
         "Number of frames"
+        if self.data.ndim < 4:
+            return 1
         return self.data.shape[3]

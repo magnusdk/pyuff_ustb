@@ -41,12 +41,12 @@ class MatrixArray(Probe):
     @compulsory_property
     def N_x(self) -> int:
         "Number of elements in the azimuth direction"
-        return LazyScalar(self._reader["N_x"])
+        return LazyScalar(self._reader["N_x"], int)
 
     @compulsory_property
     def N_y(self) -> int:
         "Number of elements in the elevation direction"
-        return LazyScalar(self._reader["N_y"])
+        return LazyScalar(self._reader["N_y"], int)
 
     # Optional properties
     @optional_property
@@ -64,11 +64,12 @@ class MatrixArray(Probe):
     def geometry(self) -> np.ndarray:
         element_width = self.pitch_x
         element_height = self.pitch_y
+        N_x, N_y = int(self.N_x), int(self.N_y)
 
         # Compute element center location
-        x0 = np.arange(0, self.N_x) * self.pitch_x
+        x0 = np.arange(0, N_x) * self.pitch_x
         x0 = x0 - np.mean(x0)
-        y0 = np.arange(0, self.N_y) * self.pitch_y
+        y0 = np.arange(0, N_y) * self.pitch_y
         y0 = y0 - np.mean(y0)
 
         X, Y = np.meshgrid(x0, y0)
@@ -77,10 +78,10 @@ class MatrixArray(Probe):
             [
                 X,
                 Y,
-                np.zeros(self.N_x * self.N_y),
-                np.zeros(self.N_x * self.N_y),
-                np.zeros(self.N_x * self.N_y),
-                element_width * np.ones(self.N_x * self.N_y),
-                element_height * np.ones(self.N_x * self.N_y),
+                np.zeros((N_x, N_y)),
+                np.zeros((N_x, N_y)),
+                np.zeros((N_x, N_y)),
+                element_width * np.ones((N_x, N_y)),
+                element_height * np.ones((N_x, N_y)),
             ]
         )

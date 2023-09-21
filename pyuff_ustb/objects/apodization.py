@@ -54,7 +54,9 @@ class Apodization(Uff):
         "Collection of UFF.WAVE classes (needed for synthetic apodizaton)"
         from pyuff_ustb.objects.wave import Wave
 
-        return util.read_potentially_list(self._reader["sequence"], Wave)
+        if "sequence" in self._reader:
+            return util.read_potentially_list(self._reader["sequence"], Wave)
+        return []
 
     @compulsory_property
     def f_number(self) -> np.ndarray:
@@ -139,7 +141,8 @@ class Apodization(Uff):
     def N_elements(self) -> int:
         "Number of elements (real or synthetic)"
         if len(self.sequence) == 0:
-            assert self.probe is not None, "The PROBE parameter is not set."
+            if self.probe is None:
+                raise ValueError("The 'probe' parameter is not set.")
             return self.probe.N_elements
         else:
             return len(self.sequence)
