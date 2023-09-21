@@ -8,7 +8,7 @@ from pyuff_ustb.objects.uff import (
     dependent_property,
     optional_property,
 )
-from pyuff_ustb.readers import LazyArray, LazyScalar, util
+from pyuff_ustb.readers import LazyArray, read_scalar, util
 
 if TYPE_CHECKING:
     from pyuff_ustb.objects.phantom import Phantom
@@ -37,22 +37,22 @@ class ChannelData(Uff):
     @compulsory_property
     def sampling_frequency(self) -> float:
         "Sampling frequency [Hz]"
-        return LazyScalar(self._reader["sampling_frequency"])
+        return read_scalar(self._reader["sampling_frequency"])
 
     @compulsory_property
     def initial_time(self) -> float:
         "Time of the initial sample [s]"
-        return LazyScalar(self._reader["initial_time"])
+        return read_scalar(self._reader["initial_time"])
 
     @compulsory_property
     def sound_speed(self) -> float:
         "Reference sound speed [m/s]"
-        return LazyScalar(self._reader["sound_speed"])
+        return read_scalar(self._reader["sound_speed"])
 
     @compulsory_property
     def modulation_frequency(self) -> float:
         "Modulation frequency [Hz]"
-        return LazyScalar(self._reader["modulation_frequency"])
+        return read_scalar(self._reader["modulation_frequency"])
 
     @compulsory_property
     def sequence(self) -> Union["Wave", List["Wave"]]:
@@ -90,12 +90,12 @@ class ChannelData(Uff):
     def PRF(self) -> float:
         "Pulse repetition frequency [Hz]"
         prf_key = "PRF" if "PRF" in self._reader else "prf"
-        return LazyScalar(self._reader[prf_key])
+        return read_scalar(self._reader[prf_key])
 
     @optional_property
     def N_active_elements(self) -> int:
         "Number of active transducers on receive"
-        return LazyScalar(self._reader["N_active_elements"])
+        return int(read_scalar(self._reader["N_active_elements"]))
 
     # Dependent properties
     @dependent_property

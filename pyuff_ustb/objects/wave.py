@@ -8,7 +8,7 @@ from pyuff_ustb.objects.uff import (
     dependent_property,
     optional_property,
 )
-from pyuff_ustb.readers import LazyScalar, util
+from pyuff_ustb.readers import read_scalar, util
 
 if TYPE_CHECKING:
     from pyuff_ustb.objects.apodization import Apodization
@@ -91,20 +91,20 @@ class Wave(Uff):
     @optional_property
     def event(self) -> int:
         "Index of the transmit/receive event this wave refers to"
-        return LazyScalar(self._reader["event"])
+        return int(read_scalar(self._reader["event"]))
 
     @optional_property
     def delay(self) -> float:
         "Time interval between t0 and acquistion start [s]"
         if "delay" in self._reader:
-            return LazyScalar(self._reader["delay"])
+            return read_scalar(self._reader["delay"])
         return 0.0
 
     @optional_property
     def sound_speed(self) -> float:
         "Reference speed of sound [m/s]"
         if "sound_speed" in self._reader:
-            return LazyScalar(self._reader["sound_speed"])
+            return read_scalar(self._reader["sound_speed"])
         return 1540.0
 
     # Dependent properties

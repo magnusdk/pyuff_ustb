@@ -129,17 +129,8 @@ class LazyArray:
         return np.array_equal(self[...], other)
 
 
-class LazyScalar(LazyArray):
-    def __init__(
-        self,
-        reader: Reader,
-        *lazy_operations: LazyOperation,
-    ):
-        def transform_shape(shape: Tuple[int, ...]):
-            # If you think that this assertion should not fail, then it might be a bug
-            # and we should use LazyArray instead for the given value.
-            assert all(dim == 1 for dim in shape), "Expected a scalar value."
-            return ()
-
-        lazy_squeeze = LazyOperation(np.squeeze, transform_shape=transform_shape)
-        super().__init__(reader, lazy_squeeze, *lazy_operations)
+def read_scalar(reader: Reader):
+    with reader.read() as obj:
+        val = np.squeeze(obj[...])
+        assert val.shape == (), "Expected a scalar value."
+        return val

@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from pyuff_ustb.objects.uff import Uff, compulsory_property, dependent_property
-from pyuff_ustb.readers import LazyArray, LazyScalar
+from pyuff_ustb.readers import LazyArray, read_scalar
 
 if TYPE_CHECKING:
     # Make sure properties are treated as properties when type checking
@@ -28,22 +28,22 @@ class Phantom(Uff):
     @compulsory_property
     def time(self) -> float:
         "Time [s]"
-        return LazyScalar(self._reader["time"])
+        return read_scalar(self._reader["time"])
 
     @compulsory_property
     def sound_speed(self) -> float:
         "Medium sound speed [m/s]"
-        return LazyScalar(self._reader["sound_speed"])
+        return read_scalar(self._reader["sound_speed"])
 
     @compulsory_property
     def density(self) -> float:
         "Medium density [kg/m3]"
-        return LazyScalar(self._reader["density"])
+        return read_scalar(self._reader["density"])
 
     @compulsory_property
     def alpha(self) -> float:
         "Medium attenuation [dB/cm/MHz]"
-        return LazyScalar(self._reader["alpha"])
+        return read_scalar(self._reader["alpha"])
 
     # Dependent properties
     @dependent_property

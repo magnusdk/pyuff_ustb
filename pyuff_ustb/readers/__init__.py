@@ -8,7 +8,7 @@ from pyuff_ustb.readers.base import (
     ReaderKeyError,
 )
 from pyuff_ustb.readers import lazy_arrays, util
-from pyuff_ustb.readers.lazy_arrays import LazyArray, LazyScalar
+from pyuff_ustb.readers.lazy_arrays import LazyArray, read_scalar
 
 __all__ = [
     "lazy_arrays",
@@ -19,5 +19,5 @@ __all__ = [
     "ReaderAttrsKeyError",
     "ReaderKeyError",
     "LazyArray",
-    "LazyScalar",
+    "read_scalar",
 ]

@@ -8,7 +8,7 @@ from pyuff_ustb.objects.uff import (
     dependent_property,
     optional_property,
 )
-from pyuff_ustb.readers import LazyArray, LazyScalar, util
+from pyuff_ustb.readers import LazyArray, read_scalar, util
 
 if TYPE_CHECKING:
     from pyuff_ustb.objects import Pulse
@@ -78,17 +78,17 @@ class BeamformedData(Uff):
     @optional_property
     def sampling_frequency(self) -> float:
         "Sampling frequency in the depth direction in [Hz]"
-        return LazyScalar(self._reader["sampling_frequency"])
+        return read_scalar(self._reader["sampling_frequency"])
 
     @optional_property
     def modulation_frequency(self) -> float:
         "Modulation frequency in [Hz]"
-        return LazyScalar(self._reader["modulation_frequency"])
+        return read_scalar(self._reader["modulation_frequency"])
 
     @optional_property
     def frame_rate(self) -> int:
         "Framerate for Video or GIF file to be saved [fps]"
-        return LazyScalar(self._reader["frame_rate"])
+        return int(read_scalar(self._reader["frame_rate"]))
 
     @dependent_property
     def N_pixels(self) -> int:

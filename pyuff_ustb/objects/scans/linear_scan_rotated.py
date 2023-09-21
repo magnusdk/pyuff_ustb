@@ -4,7 +4,7 @@ import numpy as np
 
 from pyuff_ustb.objects.scans.scan import Scan
 from pyuff_ustb.objects.uff import compulsory_property, dependent_property
-from pyuff_ustb.readers import LazyArray, LazyScalar
+from pyuff_ustb.readers import LazyArray, read_scalar
 
 if TYPE_CHECKING:
     # Make sure properties are treated as properties when type checking
@@ -30,7 +30,7 @@ class LinearScanRotated(Scan):
     @compulsory_property
     def rotation_angle(self) -> float:
         "Rotation angle [rad]"
-        return LazyScalar(self._reader["rotation_angle"])
+        return read_scalar(self._reader["rotation_angle"])
 
     @compulsory_property
     def center_of_rotation(self) -> np.ndarray:

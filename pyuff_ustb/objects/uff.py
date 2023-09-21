@@ -17,7 +17,7 @@ import h5py
 import numpy as np
 
 from pyuff_ustb.readers import H5Reader, NoneReader, Reader, ReaderKeyError, util
-from pyuff_ustb.readers.lazy_arrays import LazyArray, LazyScalar
+from pyuff_ustb.readers.lazy_arrays import LazyArray
 
 # A flag to enable equality checks with backwards compatibility for old files with
 # different names for things.
@@ -306,9 +306,9 @@ class Uff:
         for field in self._get_fields(skip_dependent_properties=True):
             value1 = getattr(self, field)
             value2 = getattr(other, field)
-            if isinstance(value1, (int, float, np.ndarray, LazyArray, LazyScalar)):
+            if isinstance(value1, (int, float, np.ndarray, LazyArray)):
                 if not isinstance(
-                    value2, (int, float, np.ndarray, LazyArray, LazyScalar)
+                    value2, (int, float, np.ndarray, LazyArray)
                 ):
                     return False
                 if not np.array_equal(np.array(value1), np.array(value2)):
@@ -324,8 +324,8 @@ def eager_load(obj: T) -> T:
 
     ``pyuff_ustb`` is lazily loaded by default, meaning that most fields are not read
     from file until they are needed. This function will recursively load all such
-    fields, ensuring that all :class:`~pyuff_ustb.readers.lazy_arrays.LazyArrays` and
-    :class:`.LazyScalars` are converted to Numpy arrays.
+    fields, ensuring that all :class:`~pyuff_ustb.readers.lazy_arrays.LazyArray` 
+    are converted to Numpy arrays.
 
     A new instance of the same type as the input object is returned, but with all its
     fields guaranteed to be loaded into memory.
@@ -337,7 +337,7 @@ def eager_load(obj: T) -> T:
         T: A new object of the same type as the input object, with all its fields
             guaranteed to be loaded into memory.
     """
-    if isinstance(obj, (LazyArray, LazyScalar)):
+    if isinstance(obj, LazyArray):
         return np.array(obj)
     elif isinstance(obj, Uff):
         kwargs = {}
@@ -453,7 +453,7 @@ the object anyway, set ignore_missing_compulsory_fields=True."""
         dataset.attrs["class"] = "char"
         dataset.attrs["name"] = name
 
-    elif isinstance(obj, (int, float, np.ndarray, LazyArray, LazyScalar)):
+    elif isinstance(obj, (int, float, np.ndarray, LazyArray)):
         name = location[-1]
         obj = np.array(obj)  # <- Ensure array and load the data if lazy
         # We always write *.attrs["class"] = "single". I don't think it matters.

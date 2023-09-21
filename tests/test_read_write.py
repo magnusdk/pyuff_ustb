@@ -9,7 +9,7 @@ import pyuff_ustb as pyuff
 from pyuff_ustb.common import get_class_from_name
 from pyuff_ustb.objects.uff import dependent_property
 from pyuff_ustb.readers import H5Reader, ReaderKeyError
-from pyuff_ustb.readers.lazy_arrays import LazyArray, LazyScalar
+from pyuff_ustb.readers.lazy_arrays import LazyArray
 
 # Default download location when using vbeam.util.download.cached_download
 _data_folder = os.path.expanduser("~/.vbeam_downloads/ustb.no/datasets/")
@@ -90,7 +90,7 @@ def test_reading_eagerly(uff_filepath):
 
 
 def _eager_read_dependent_properties(obj):
-    if isinstance(obj, (LazyArray, LazyScalar)):
+    if isinstance(obj, LazyArray):
         return np.array(obj)
     elif isinstance(obj, pyuff.Uff):
         kwargs = {}

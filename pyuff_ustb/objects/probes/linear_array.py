@@ -4,7 +4,7 @@ import numpy as np
 
 from pyuff_ustb.objects.probes.probe import Probe
 from pyuff_ustb.objects.uff import compulsory_property, optional_property
-from pyuff_ustb.readers import LazyArray, LazyScalar
+from pyuff_ustb.readers import LazyArray, read_scalar
 
 if TYPE_CHECKING:
     # Make sure properties are treated as properties when type checking
@@ -27,23 +27,23 @@ class LinearArray(Probe):
     @compulsory_property
     def N(self) -> int:
         "Number of elements"
-        return LazyScalar(self._reader["N"], int)
+        return int(read_scalar(self._reader["N"]))
 
     @compulsory_property
     def pitch(self) -> float:
         "Distance between the elements in the azimuth direction [m]"
-        return LazyScalar(self._reader["pitch"])
+        return read_scalar(self._reader["pitch"])
 
     # Optional properties
     @optional_property
     def element_width(self) -> float:
         "Width of the elements in the azimuth direction [m]"
-        return LazyScalar(self._reader["element_width"])
+        return read_scalar(self._reader["element_width"])
 
     @optional_property
     def element_height(self) -> float:
         "Height of the elements in the elevation direction [m]"
-        return LazyScalar(self._reader["element_height"])
+        return read_scalar(self._reader["element_height"])
 
     @compulsory_property
     def geometry(self) -> np.ndarray:

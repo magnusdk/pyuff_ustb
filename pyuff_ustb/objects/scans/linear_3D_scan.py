@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from pyuff_ustb.objects.scans.scan import Scan
 from pyuff_ustb.objects.uff import compulsory_property, optional_property
-from pyuff_ustb.readers import LazyArray, LazyScalar
+from pyuff_ustb.readers import LazyArray, read_scalar
 
 if TYPE_CHECKING:
     # Make sure properties are treated as properties when type checking
@@ -32,7 +32,7 @@ class Linear3DScan(Scan):
     @compulsory_property
     def roll(self) -> float:
         "Angle between the radial axis and the x-axis [rad]"
-        return LazyScalar(self._reader["roll"])
+        return read_scalar(self._reader["roll"])
 
     # Optional properties
     @optional_property
