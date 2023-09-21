@@ -249,7 +249,12 @@ class Uff:
     def _preprocess_write(self, name: str, value):
         return value
 
-    def _get_fields(self, skip_dependent_properties: bool = False) -> Sequence[str]:
+    def _get_fields(
+        self,
+        skip_dependent_properties: bool = False,
+        only_dependent_properties: bool = False,
+    ) -> Sequence[str]:
+        assert not (skip_dependent_properties and only_dependent_properties)
         if type(self) is Uff:
             return self._reader.keys()
         else:
@@ -261,6 +266,8 @@ class Uff:
                     getattr(t, attr),
                     (compulsory_property, optional_property)
                     if skip_dependent_properties
+                    else dependent_property
+                    if only_dependent_properties
                     else (compulsory_property, optional_property, dependent_property),
                 )
             ]

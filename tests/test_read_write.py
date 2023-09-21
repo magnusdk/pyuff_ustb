@@ -9,6 +9,7 @@ import pyuff_ustb as pyuff
 from pyuff_ustb.common import get_class_from_name
 from pyuff_ustb.objects.uff import dependent_property
 from pyuff_ustb.readers import H5Reader, ReaderKeyError
+from pyuff_ustb.readers.lazy_arrays import LazyArray, LazyScalar
 
 # Default download location when using vbeam.util.download.cached_download
 _data_folder = os.path.expanduser("~/.vbeam_downloads/ustb.no/datasets/")
@@ -86,6 +87,29 @@ def test_reading_eagerly(uff_filepath):
     uff = pyuff.Uff(uff_filepath)
     for k in uff:
         pyuff.eager_load(uff[k])
+
+
+def _eager_read_dependent_properties(obj):
+    if isinstance(obj, (LazyArray, LazyScalar)):
+        return np.array(obj)
+    elif isinstance(obj, pyuff.Uff):
+        kwargs = {}
+        for name in obj._get_fields(only_dependent_properties=True):
+            kwargs[name] = _eager_read_dependent_properties(getattr(obj, name))
+        return obj.__class__(**kwargs)
+    elif isinstance(obj, (list, tuple)):
+        return [_eager_read_dependent_properties(o) for o in obj]
+    elif isinstance(obj, dict):
+        return {k: _eager_read_dependent_properties(v) for k, v in obj.items()}
+    else:
+        return obj
+
+
+def test_reading_dependent_properties(uff_filepath):
+    # Load each object in the uff file eagerly
+    uff = pyuff.Uff(uff_filepath)
+    for k in uff:
+        _eager_read_dependent_properties(uff[k])
 
 
 def test_reading_and_writing(uff_filepath):
