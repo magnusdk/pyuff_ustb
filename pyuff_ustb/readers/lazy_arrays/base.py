@@ -14,16 +14,23 @@ from pyuff_ustb.readers.lazy_arrays.lazy_operations import (
 )
 
 
-@dataclass(frozen=True)
+@dataclass
 class LazyArray:
     _reader: Reader
     _lazy_operations: Sequence[LazyOperation] = ()
 
-    def __post_init__(self):
-        if not isinstance(self._reader, Reader):
-            raise TypeError(
-                f"Expected a Reader object, got {type(self._reader)} instead."
-            )
+    def __init__(self, reader: Reader, *lazy_operations: LazyOperation):
+        # Make sure all operations are instances of LazyOperation
+        lazy_operations = tuple(
+            [
+                op if isinstance(op, LazyOperation) else LazyOperation(op)
+                for op in lazy_operations
+            ]
+        )
+        if not isinstance(reader, Reader):
+            raise TypeError(f"Expected a Reader object, got {type(reader)} instead.")
+        self._reader = reader
+        self._lazy_operations = lazy_operations
 
     def __repr__(self):
         return f"<LazyArray shape={self.shape} dtype={self.dtype}>"
@@ -46,7 +53,7 @@ class LazyArray:
 
     @property
     def T(self):
-        return LazyArray(self._reader, (*self._lazy_operations, LazyTranspose()))
+        return LazyArray(self._reader, *self._lazy_operations, LazyTranspose())
 
     @property
     def shape(self) -> Tuple[int, ...]:
@@ -79,7 +86,7 @@ class LazyArray:
 
     # Conversion operations
     def __array__(self):
-        return self[...]
+        return np.array(self[...])
 
     def __jax_array__(self):
         import jax.numpy as jnp
@@ -90,7 +97,7 @@ class LazyArray:
         return float(self[...])
 
     def __int__(self):
-        return float(self[...])
+        return int(self[...])
 
     # Math operations
     def __add__(self, other):
@@ -126,7 +133,7 @@ class LazyScalar(LazyArray):
     def __init__(
         self,
         reader: Reader,
-        lazy_operations: Sequence[LazyOperation] = (),
+        *lazy_operations: LazyOperation,
     ):
         def transform_shape(shape: Tuple[int, ...]):
             # If you think that this assertion should not fail, then it might be a bug
@@ -135,4 +142,4 @@ class LazyScalar(LazyArray):
             return ()
 
         lazy_squeeze = LazyOperation(np.squeeze, transform_shape=transform_shape)
-        super().__init__(reader, (lazy_squeeze, *lazy_operations))
+        super().__init__(reader, lazy_squeeze, *lazy_operations)
