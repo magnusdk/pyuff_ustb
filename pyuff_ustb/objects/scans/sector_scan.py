@@ -78,10 +78,14 @@ class SectorScan(Scan):
         "Distance used for the calculation of the phase term [m]"
         raise NotImplementedError("Create an issue on the repository if you need this.")
 
-    # Unlike the base scan object (pyuff_ustb.Scan), x, y, and z are not compulsory
-    # properties, but calculated based on azimuth_axis, depth_axis, and origin.
-    @dependent_property
+    # Override some compulsory properties of Scan
+    @compulsory_property
     def x(self) -> np.ndarray:
+        # Try to read x from the file first
+        if "x" in self._reader:
+            return LazyArray(self._reader["x"])
+
+        # If x is not set in the file, calculate it based on the fields.
         if (
             (self.azimuth_axis is None)
             or (self.depth_axis is None)
@@ -94,8 +98,13 @@ class SectorScan(Scan):
         N_pixels = rho.size
         return np.reshape(rho * np.sin(theta) + self.origin.x, [N_pixels])
 
-    @dependent_property
+    @compulsory_property
     def y(self) -> np.ndarray:
+        # Try to read y from the file first
+        if "y" in self._reader:
+            return LazyArray(self._reader["y"])
+
+        # If y is not set in the file, calculate it based on the fields.
         if (
             (self.azimuth_axis is None)
             or (self.depth_axis is None)
@@ -108,8 +117,13 @@ class SectorScan(Scan):
         N_pixels = rho.size
         return np.reshape(np.zeros(rho.shape) + self.origin.y, [N_pixels])
 
-    @dependent_property
+    @compulsory_property
     def z(self) -> np.ndarray:
+        # Try to read z from the file first
+        if "z" in self._reader:
+            return LazyArray(self._reader["z"])
+
+        # If z is not set in the file, calculate it based on the fields.
         if (
             (self.azimuth_axis is None)
             or (self.depth_axis is None)

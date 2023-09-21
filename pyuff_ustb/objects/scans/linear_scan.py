@@ -61,21 +61,35 @@ class LinearScan(Scan):
         "Distance used for the calculation of the phase term"
         return self.z
 
-    # Unlike the base scan object (pyuff_ustb.Scan), x, y, and z are not compulsory
-    # properties, but calculated based on azimuth_axis, depth_axis, and origin.
-    @dependent_property
+    # Override some compulsory properties of Scan
+    @compulsory_property
     def x(self) -> np.ndarray:
+        # Try to read x from the file first
+        if "x" in self._reader:
+            return LazyArray(self._reader["x"])
+
+        # If x is not set in the file, calculate it based on the fields.
         X, Z = np.meshgrid(self.x_axis, self.z_axis, indexing="ij")
         N_pixels = X.size
         return np.reshape(X, [N_pixels])
 
-    @dependent_property
+    @compulsory_property
     def y(self) -> np.ndarray:
+        # Try to read y from the file first
+        if "y" in self._reader:
+            return LazyArray(self._reader["y"])
+
+        # If y is not set in the file, calculate it based on the fields.
         N_pixels = self.N_x_axis * self.N_z_axis
         return np.zeros((N_pixels,))
 
-    @dependent_property
+    @compulsory_property
     def z(self) -> np.ndarray:
+        # Try to read z from the file first
+        if "z" in self._reader:
+            return LazyArray(self._reader["z"])
+
+        # If z is not set in the file, calculate it based on the fields.
         X, Z = np.meshgrid(self.x_axis, self.z_axis, indexing="ij")
         N_pixels = Z.size
         return np.reshape(Z, [N_pixels])
