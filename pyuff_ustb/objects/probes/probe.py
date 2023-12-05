@@ -60,7 +60,7 @@ class Probe(Uff):
     @dependent_property
     def N_elements(self) -> int:
         "Number of elements"
-        return self.geometry.shape[1]
+        return np.shape(self.geometry)[1]
 
     @dependent_property
     def x(self) -> np.ndarray:
