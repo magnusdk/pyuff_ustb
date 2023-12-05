@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Tuple, Union
 
 import numpy as np
 
@@ -62,3 +62,46 @@ class Point(Uff):
     @dependent_property
     def z(self) -> float:
         return self.distance * np.cos(self.azimuth) * np.cos(self.elevation)
+
+    # Some helpers for "writing" to dependent properties
+    @xyz.setter
+    def xyz(self, values: Union[Tuple[int, int, int], np.ndarray]):
+        if len(values) != 3:
+            raise ValueError("Must provide x, y, and z.")
+
+        x, y, z = values
+        self.distance = np.sqrt(x**2 + y**2 + z**2)
+        self.azimuth = np.arctan2(x, z)
+        if self.distance > 0:
+            if np.isinf(y):
+                self.elevation = np.pi / 2 * np.sign(y)
+            else:
+                self.elevation = np.arcsin(y / self.distance)
+        else:
+            self.elevation = 0
+
+    @x.setter
+    def x(self, value: float):
+        self.distance = np.sqrt(value**2 + self.y**2 + self.z**2)
+        self.azimuth = np.arctan2(value, self.z)
+        if self.distance > 0:
+            self.elevation = np.arcsin(self.y / self.distance)
+        else:
+            self.elevation = 0
+
+    @y.setter
+    def y(self, value: float):
+        self.distance = np.sqrt(self.x**2 + value**2 + self.z**2)
+        if self.distance > 0:
+            self.elevation = np.arcsin(value / self.distance)
+        else:
+            self.elevation = 0
+
+    @z.setter
+    def z(self, value: float):
+        self.distance = np.sqrt(self.x**2 + self.y**2 + value**2)
+        self.azimuth = np.arctan2(self.x, value)
+        if self.distance > 0:
+            self.elevation = np.arcsin(self.y / self.distance)
+        else:
+            self.elevation = 0
