@@ -17,7 +17,7 @@ def read_potentially_list(
 ) -> Union["TUff", List["TUff"]]:
     """Read a Uff or a list of Uffs, depending on the "size"
     attribute. If size>1, then we have a list of objects."""
-    n = reader.attrs.get("size", [0, 0])[1]
+    n = int(reader.attrs.get("size", [0, 0]).max())
     if n > 1:
         return [cls(reader[k]) for k in reader.keys()]
     else:
