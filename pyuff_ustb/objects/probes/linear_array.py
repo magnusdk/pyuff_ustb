@@ -4,7 +4,7 @@ import numpy as np
 
 from pyuff_ustb.objects.probes.probe import Probe
 from pyuff_ustb.objects.uff import compulsory_property, optional_property
-from pyuff_ustb.readers import LazyArray, read_scalar
+from pyuff_ustb.readers import read_array, read_scalar
 
 if TYPE_CHECKING:
     # Make sure properties are treated as properties when type checking
@@ -49,7 +49,7 @@ class LinearArray(Probe):
     def geometry(self) -> np.ndarray:
         # Try to read geometry from the file first
         if "geometry" in self._reader:
-            return LazyArray(self._reader["geometry"])
+            return read_array(self._reader["geometry"])
 
         # If geometry is not set in the file, calculate it based on the fields.
         element_width = (

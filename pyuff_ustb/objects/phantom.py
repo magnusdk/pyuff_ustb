@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from pyuff_ustb.objects.uff import Uff, compulsory_property, dependent_property
-from pyuff_ustb.readers import LazyArray, read_scalar
+from pyuff_ustb.readers import read_array, read_scalar
 
 if TYPE_CHECKING:
     # Make sure properties are treated as properties when type checking
@@ -23,7 +23,7 @@ class Phantom(Uff):
     @compulsory_property
     def points(self) -> np.ndarray:
         "Matrix of point scaterers [x y z Gamma] - [m m m unitless]"
-        return LazyArray(self._reader["points"])
+        return read_array(self._reader["points"])
 
     @compulsory_property
     def time(self) -> float:

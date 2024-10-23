@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from pyuff_ustb.objects.uff import Uff, compulsory_property, dependent_property
-from pyuff_ustb.readers import LazyArray
+from pyuff_ustb.readers import read_array
 
 if TYPE_CHECKING:
     # Make sure properties are treated as properties when type checking
@@ -22,17 +22,17 @@ class Scan(Uff):
     @compulsory_property
     def x(self) -> np.ndarray:
         "Vector containing the x coordinates of each pixel in [m]"
-        return LazyArray(self._reader["x"])
+        return read_array(self._reader["x"])
 
     @compulsory_property
     def y(self) -> np.ndarray:
         "Vector containing the y coordinates of each pixel in [m]"
-        return LazyArray(self._reader["y"])
+        return read_array(self._reader["y"])
 
     @compulsory_property
     def z(self) -> np.ndarray:
         "Vector containing the z coordinates of each pixel in [m]"
-        return LazyArray(self._reader["z"])
+        return read_array(self._reader["z"])
 
     # Dependent properties
     @dependent_property

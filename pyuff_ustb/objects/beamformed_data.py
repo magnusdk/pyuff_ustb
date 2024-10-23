@@ -8,7 +8,7 @@ from pyuff_ustb.objects.uff import (
     dependent_property,
     optional_property,
 )
-from pyuff_ustb.readers import LazyArray, read_scalar, util
+from pyuff_ustb.readers import read_array, read_scalar, util
 
 if TYPE_CHECKING:
     from pyuff_ustb.objects import Pulse
@@ -44,7 +44,7 @@ class BeamformedData(Uff):
     @compulsory_property
     def data(self) -> np.ndarray:
         "Data [pixel x channel x wave x frame]"
-        return LazyArray(self._reader["data"])
+        return read_array(self._reader["data"])
 
     # Optional properties
     @optional_property

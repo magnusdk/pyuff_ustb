@@ -4,7 +4,7 @@ import numpy as np
 
 from pyuff_ustb.objects.scans.scan import Scan
 from pyuff_ustb.objects.uff import compulsory_property, dependent_property
-from pyuff_ustb.readers import LazyArray, read_scalar
+from pyuff_ustb.readers import read_array, read_scalar
 
 if TYPE_CHECKING:
     # Make sure properties are treated as properties when type checking
@@ -20,12 +20,12 @@ class LinearScanRotated(Scan):
     @compulsory_property
     def x_axis(self) -> np.ndarray:
         "Vector containing the x coordinates of the x - axis [m]"
-        return LazyArray(self._reader["x_axis"])
+        return read_array(self._reader["x_axis"])
 
     @compulsory_property
     def z_axis(self) -> np.ndarray:
         "Vector containing the z coordinates of the z - axis [m]"
-        return LazyArray(self._reader["z_axis"])
+        return read_array(self._reader["z_axis"])
 
     @compulsory_property
     def rotation_angle(self) -> float:
@@ -35,7 +35,7 @@ class LinearScanRotated(Scan):
     @compulsory_property
     def center_of_rotation(self) -> np.ndarray:
         "Vector containing the (x,y,z) coordinates [m] of the rotation point"
-        return LazyArray(self._reader["center_of_rotation"])
+        return read_array(self._reader["center_of_rotation"])
 
     # Dependent properties
     @dependent_property

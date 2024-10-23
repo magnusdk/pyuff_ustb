@@ -8,7 +8,7 @@ from pyuff_ustb.objects.uff import (
     dependent_property,
     optional_property,
 )
-from pyuff_ustb.readers import LazyArray, read_scalar, util
+from pyuff_ustb.readers import read_array, read_scalar, util
 
 if TYPE_CHECKING:
     from pyuff_ustb.objects.phantom import Phantom
@@ -69,7 +69,7 @@ class ChannelData(Uff):
     @compulsory_property
     def data(self) -> np.ndarray:
         "Channel data [time dim. x channel dim. x wave dim. x frame dim.]"
-        return LazyArray(self._reader["data"]).T
+        return read_array(self._reader["data"]).T
 
     # Optional properties
     @optional_property

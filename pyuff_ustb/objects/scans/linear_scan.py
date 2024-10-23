@@ -4,7 +4,7 @@ import numpy as np
 
 from pyuff_ustb.objects.scans.scan import Scan
 from pyuff_ustb.objects.uff import compulsory_property, dependent_property
-from pyuff_ustb.readers import LazyArray
+from pyuff_ustb.readers import read_array
 
 if TYPE_CHECKING:
     # Make sure properties are treated as properties when type checking
@@ -28,12 +28,12 @@ class LinearScan(Scan):
     @compulsory_property
     def x_axis(self) -> np.ndarray:
         "Vector containing the x coordinates of the x-axis [m]"
-        return LazyArray(self._reader["x_axis"])
+        return read_array(self._reader["x_axis"])
 
     @compulsory_property
     def z_axis(self) -> np.ndarray:
         "Vector containing the z coordinates of the z-axis [m]"
-        return LazyArray(self._reader["z_axis"])
+        return read_array(self._reader["z_axis"])
 
     # Dependent properties
     @dependent_property
@@ -66,7 +66,7 @@ class LinearScan(Scan):
     def x(self) -> np.ndarray:
         # Try to read x from the file first
         if "x" in self._reader:
-            return LazyArray(self._reader["x"])
+            return read_array(self._reader["x"])
 
         # If x is not set in the file, calculate it based on the fields.
         X, Z = np.meshgrid(self.x_axis, self.z_axis, indexing="ij")
@@ -77,7 +77,7 @@ class LinearScan(Scan):
     def y(self) -> np.ndarray:
         # Try to read y from the file first
         if "y" in self._reader:
-            return LazyArray(self._reader["y"])
+            return read_array(self._reader["y"])
 
         # If y is not set in the file, calculate it based on the fields.
         N_pixels = self.N_x_axis * self.N_z_axis
@@ -87,7 +87,7 @@ class LinearScan(Scan):
     def z(self) -> np.ndarray:
         # Try to read z from the file first
         if "z" in self._reader:
-            return LazyArray(self._reader["z"])
+            return read_array(self._reader["z"])
 
         # If z is not set in the file, calculate it based on the fields.
         X, Z = np.meshgrid(self.x_axis, self.z_axis, indexing="ij")

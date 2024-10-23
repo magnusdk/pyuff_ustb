@@ -19,8 +19,7 @@ class NumpyLike(Protocol):
     shape: tuple
     dtype: type
 
-    def __getitem__(self, key):
-        ...
+    def __getitem__(self, key): ...
 
 
 class ReaderAttrs(dict):
@@ -43,22 +42,18 @@ class Reader(ABC):
         return iter(self.keys())
 
     @abstractmethod
-    def append_path(self, path: Union[str, Sequence[str]]) -> "Reader":
-        ...
+    def append_path(self, path: Union[str, Sequence[str]]) -> "Reader": ...
 
     @abstractmethod
-    def keys(self) -> Iterable:
-        ...
+    def keys(self) -> Iterable: ...
 
     @property
     @abstractmethod
-    def attrs(self) -> ReaderAttrs:
-        ...
+    def attrs(self) -> ReaderAttrs: ...
 
     @abstractmethod
     @contextmanager
-    def read(self) -> Iterator[Union[NumpyLike, Any]]:
-        ...
+    def read(self) -> Iterator[Union[NumpyLike, Any]]: ...
 
 
 class H5Reader(Reader):
@@ -149,3 +144,20 @@ class NoneReader(Reader):
 
     def __repr__(self):
         return f"""NoneReader(<No reader has been set>)"""
+
+
+def read_scalar(reader: Reader):
+    with reader.read() as obj:
+        val = np.squeeze(obj[...])
+        assert val.shape == (), "Expected a scalar value."
+        return val
+
+
+def read_array(reader: Reader):
+    is_complex = np.squeeze(reader.attrs["complex"])
+    if is_complex:
+        with reader["real"].read() as real, reader["imag"].read() as imag:
+            return real[:] + 1j * imag[:]
+    else:
+        with reader.read() as value:
+            return np.array(value) if value.shape == () else value[:]

@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from pyuff_ustb.objects.uff import Uff, compulsory_property, dependent_property
-from pyuff_ustb.readers import LazyArray
+from pyuff_ustb.readers import read_array
 
 if TYPE_CHECKING:
     from pyuff_ustb.objects.point import Point
@@ -47,7 +47,7 @@ class Probe(Uff):
             np.ndarray: An array with attitude of rectangular elements with shape
             ``(7, n_elements)``.
         """
-        return LazyArray(self._reader["geometry"])
+        return read_array(self._reader["geometry"])
 
     @compulsory_property
     def origin(self) -> "Point":

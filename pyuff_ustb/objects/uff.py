@@ -17,7 +17,6 @@ import h5py
 import numpy as np
 
 from pyuff_ustb.readers import H5Reader, NoneReader, Reader, ReaderKeyError, util
-from pyuff_ustb.readers.lazy_arrays import LazyArray
 
 # A flag to enable equality checks with backwards compatibility for old files with
 # different names for things.
@@ -264,11 +263,19 @@ class Uff:
                 for attr in dir(t)
                 if isinstance(
                     getattr(t, attr),
-                    (compulsory_property, optional_property)
-                    if skip_dependent_properties
-                    else dependent_property
-                    if only_dependent_properties
-                    else (compulsory_property, optional_property, dependent_property),
+                    (
+                        (compulsory_property, optional_property)
+                        if skip_dependent_properties
+                        else (
+                            dependent_property
+                            if only_dependent_properties
+                            else (
+                                compulsory_property,
+                                optional_property,
+                                dependent_property,
+                            )
+                        )
+                    ),
                 )
             ]
 
@@ -306,10 +313,8 @@ class Uff:
         for field in self._get_fields(skip_dependent_properties=True):
             value1 = getattr(self, field)
             value2 = getattr(other, field)
-            if isinstance(value1, (int, float, np.ndarray, LazyArray)):
-                if not isinstance(
-                    value2, (int, float, np.ndarray, LazyArray)
-                ):
+            if isinstance(value1, (int, float, np.ndarray)):
+                if not isinstance(value2, (int, float, np.ndarray)):
                     return False
                 if not np.array_equal(np.array(value1), np.array(value2)):
                     return False
@@ -324,8 +329,7 @@ def eager_load(obj: T) -> T:
 
     ``pyuff_ustb`` is lazily loaded by default, meaning that most fields are not read
     from file until they are needed. This function will recursively load all such
-    fields, ensuring that all :class:`~pyuff_ustb.readers.lazy_arrays.LazyArray` 
-    are converted to Numpy arrays.
+    fields.
 
     A new instance of the same type as the input object is returned, but with all its
     fields guaranteed to be loaded into memory.
@@ -337,9 +341,7 @@ def eager_load(obj: T) -> T:
         T: A new object of the same type as the input object, with all its fields
             guaranteed to be loaded into memory.
     """
-    if isinstance(obj, LazyArray):
-        return np.array(obj)
-    elif isinstance(obj, Uff):
+    if isinstance(obj, Uff):
         kwargs = {}
         for name in obj._get_fields(skip_dependent_properties=True):
             kwargs[name] = eager_load(getattr(obj, name))
@@ -453,9 +455,8 @@ the object anyway, set ignore_missing_compulsory_fields=True."""
         dataset.attrs["class"] = "char"
         dataset.attrs["name"] = name
 
-    elif isinstance(obj, (int, float, np.ndarray, LazyArray)):
+    elif isinstance(obj, (int, float, np.ndarray)):
         name = location[-1]
-        obj = np.array(obj)  # <- Ensure array and load the data if lazy
         # We always write *.attrs["class"] = "single". I don't think it matters.
         if np.iscomplexobj(obj):
             group = hf.create_group(location_str)
@@ -484,7 +485,7 @@ the object anyway, set ignore_missing_compulsory_fields=True."""
         # Ignore empty sequences
         if len(obj) == 0:
             return
-        
+
         name = location[-1]
         first_obj = obj[0]
         assert all(

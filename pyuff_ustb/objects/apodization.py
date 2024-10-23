@@ -8,7 +8,7 @@ from pyuff_ustb.objects.uff import (
     dependent_property,
     optional_property,
 )
-from pyuff_ustb.readers import LazyArray, util
+from pyuff_ustb.readers import read_array, util
 
 if TYPE_CHECKING:
     from pyuff_ustb.objects.point import Point
@@ -62,7 +62,7 @@ class Apodization(Uff):
     def f_number(self) -> np.ndarray:
         "F-number [Fx Fy] [unitless unitless]"
         if "f_number" in self._reader:
-            return LazyArray(self._reader["f_number"])
+            return read_array(self._reader["f_number"])
         return np.array([1, 1])
 
     @compulsory_property
@@ -78,42 +78,42 @@ class Apodization(Uff):
     def MLA(self) -> int:
         "Number of multi-line acquisitions, only valid for uff.window.scanline"
         if "MLA" in self._reader:
-            return LazyArray(self._reader["MLA"])
+            return read_array(self._reader["MLA"])
         return np.array(1)
 
     @compulsory_property
     def MLA_overlap(self) -> int:
         "Number of multi-line acquisitions, only valid for uff.window.scanline"
         if "MLA_overlap" in self._reader:
-            return LazyArray(self._reader["MLA_overlap"])
+            return read_array(self._reader["MLA_overlap"])
         return np.array(0)
 
     @compulsory_property
     def tilt(self) -> np.ndarray:
         "Tilt angle [azimuth elevation] [rad rad]"
         if "tilt" in self._reader:
-            return LazyArray(self._reader["tilt"])
+            return read_array(self._reader["tilt"])
         return np.array([0, 0])
 
     @compulsory_property
     def minimum_aperture(self) -> np.ndarray:
         "Minimum aperture size in the [x y] direction"
         if "minimum_aperture" in self._reader:
-            return LazyArray(self._reader["minimum_aperture"])
+            return read_array(self._reader["minimum_aperture"])
         return np.array([1e-3, 1e-3])
 
     @compulsory_property
     def maximum_aperture(self) -> np.ndarray:
         "Maximum aperture size in the [x y] direction"
         if "maximum_aperture" in self._reader:
-            return LazyArray(self._reader["maximum_aperture"])
+            return read_array(self._reader["maximum_aperture"])
         return np.array([10, 10])
 
     # Optional properties
     @optional_property
     def apodization_vector(self) -> np.ndarray:
         "Apodization vector to override the dynamic calculation of apodization"
-        return LazyArray(self._reader["apodization_vector"])
+        return read_array(self._reader["apodization_vector"])
 
     @optional_property
     def origin(self) -> Union["Point", None]:

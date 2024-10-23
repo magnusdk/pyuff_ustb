@@ -9,7 +9,6 @@ import pyuff_ustb as pyuff
 from pyuff_ustb.common import get_class_from_name
 from pyuff_ustb.objects.uff import dependent_property
 from pyuff_ustb.readers import H5Reader, ReaderKeyError
-from pyuff_ustb.readers.lazy_arrays import LazyArray
 
 # Default download location when using vbeam.util.download.cached_download
 _data_folder = os.path.expanduser("~/.vbeam_downloads/ustb.no/datasets/")
@@ -90,9 +89,7 @@ def test_reading_eagerly(uff_filepath):
 
 
 def _eager_read_dependent_properties(obj):
-    if isinstance(obj, LazyArray):
-        return np.array(obj)
-    elif isinstance(obj, pyuff.Uff):
+    if isinstance(obj, pyuff.Uff):
         kwargs = {}
         for name in obj._get_fields(skip_dependent_properties=True):
             kwargs[name] = _eager_read_dependent_properties(getattr(obj, name))
@@ -271,3 +268,9 @@ def _h5_equals(r1: H5Reader, r2: H5Reader) -> bool:
         else:
             raise TypeError(f"Unknown type {type(r1)}")
     return True
+
+
+if __name__ == "__main__":
+    import pytest
+
+    pytest.main([__file__])

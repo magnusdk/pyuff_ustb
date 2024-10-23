@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from pyuff_ustb.objects.uff import Uff, compulsory_property
-from pyuff_ustb.readers import LazyArray, read_scalar
+from pyuff_ustb.readers import read_array, read_scalar
 
 if TYPE_CHECKING:
     # Make sure properties are treated as properties when type checking
@@ -38,4 +38,4 @@ class Pulse(Uff):
     @compulsory_property
     def waveform(self) -> np.ndarray:
         "Transmitted waveform (for example used for match filtering)"
-        return LazyArray(self._reader["waveform"])
+        return read_array(self._reader["waveform"])

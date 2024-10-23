@@ -46,7 +46,7 @@ See the modules under `pyuff_ustb/objects` for all implemented UFF objects. The 
 Check out the source code under `pyuff_ustb/objects/channel_data.py` in your favorite code editor to get a better understanding of the UFF object structure.
 
 ## Lazy loading
-PyUFF strives to only load what you need in order to speed up the reading process. This is done by using lazy loaded properties. Lazy loaded values are only actually read from the file when they are used. This is contrary to _eager loading_ where _all_ values are automatically read from the file when the object is created. Another potential benefit from lazy loading is that it enables streaming of data from the file, which may speed up the reading process even further. Streaming of PyUFF data is not implemented yet.
+PyUFF strives to only load what you need in order to speed up the reading process. This is done by using lazy loaded properties. Lazy loaded values are only actually read from the file when they are used. This is contrary to _eager loading_ where _all_ values are automatically read from the file when the object is created. Arrays are always eagerly loaded so that you can be sure that they are NumPy arrays (in previous versions we had a `LazyArray` abstraction but the benefits of this were small and the complexity cost was big).
 
 In general, all UFF object fields are of the type `cached_property`. When a `cached_property` is accessed for the first time, its code will run, and the returned value will be cached, meaning that for most PyUFF fields, values are only read from a file once. The `cached_property` is further split into two types:
 

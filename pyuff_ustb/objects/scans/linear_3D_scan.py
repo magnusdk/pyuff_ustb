@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from pyuff_ustb.objects.scans.scan import Scan
 from pyuff_ustb.objects.uff import compulsory_property, optional_property
-from pyuff_ustb.readers import LazyArray, read_scalar
+from pyuff_ustb.readers import read_array, read_scalar
 
 if TYPE_CHECKING:
     # Make sure properties are treated as properties when type checking
@@ -22,12 +22,12 @@ class Linear3DScan(Scan):
     @compulsory_property
     def radial_axis(self) -> float:
         "Vector containing the coordinates in the radial direction axis [m]"
-        return LazyArray(self._reader["radial_axis"])
+        return read_array(self._reader["radial_axis"])
 
     @compulsory_property
     def axial_axis(self) -> float:
         "Vector containing the coordinates in the axial direction axis [m]"
-        return LazyArray(self._reader["axial_axis"])
+        return read_array(self._reader["axial_axis"])
 
     @compulsory_property
     def roll(self) -> float:

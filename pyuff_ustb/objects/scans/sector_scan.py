@@ -4,7 +4,7 @@ import numpy as np
 
 from pyuff_ustb.objects.scans.scan import Scan
 from pyuff_ustb.objects.uff import compulsory_property, dependent_property
-from pyuff_ustb.readers import LazyArray, util
+from pyuff_ustb.readers import read_array, util
 
 if TYPE_CHECKING:
     from pyuff_ustb.objects.point import Point
@@ -33,12 +33,12 @@ class SectorScan(Scan):
     @compulsory_property
     def azimuth_axis(self) -> np.ndarray:
         "Vector containing the azimuth coordinates [rad]"
-        return LazyArray(self._reader["azimuth_axis"])
+        return read_array(self._reader["azimuth_axis"])
 
     @compulsory_property
     def depth_axis(self) -> np.ndarray:
         "Vector containing the distance coordinates [m]"
-        return LazyArray(self._reader["depth_axis"])
+        return read_array(self._reader["depth_axis"])
 
     @compulsory_property
     def origin(self) -> Union["Point", List["Point"]]:
@@ -83,7 +83,7 @@ class SectorScan(Scan):
     def x(self) -> np.ndarray:
         # Try to read x from the file first
         if "x" in self._reader:
-            return LazyArray(self._reader["x"])
+            return read_array(self._reader["x"])
 
         # If x is not set in the file, calculate it based on the fields.
         if (
@@ -102,7 +102,7 @@ class SectorScan(Scan):
     def y(self) -> np.ndarray:
         # Try to read y from the file first
         if "y" in self._reader:
-            return LazyArray(self._reader["y"])
+            return read_array(self._reader["y"])
 
         # If y is not set in the file, calculate it based on the fields.
         if (
@@ -121,7 +121,7 @@ class SectorScan(Scan):
     def z(self) -> np.ndarray:
         # Try to read z from the file first
         if "z" in self._reader:
-            return LazyArray(self._reader["z"])
+            return read_array(self._reader["z"])
 
         # If z is not set in the file, calculate it based on the fields.
         if (
